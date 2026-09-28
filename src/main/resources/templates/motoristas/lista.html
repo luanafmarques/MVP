@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/base :: head('Motoristas')}"></head>
+<body>
+<header th:replace="~{fragmentos/base :: topo('motoristas')}"></header>
+<main id="conteudo" class="pagina">
+    <th:block th:replace="~{fragmentos/base :: avisos}"></th:block>
+    <div class="cabecalho-pagina">
+        <div>
+            <h1>Motoristas e motoboys</h1>
+            <p th:text="${usuario.admin} ? 'Todos os profissionais cadastrados.' : 'Profissionais da sua equipe.'">Equipe</p>
+        </div>
+        <div class="acoes"><a class="botao" th:href="@{/motoristas/novo}">Novo motorista</a></div>
+    </div>
+    <div class="cartao">
+        <div class="tabela-rolagem">
+            <table>
+                <thead><tr><th>Nome</th><th>Telefone</th><th>Documento</th><th>Veículo</th><th class="numero">km/l</th><th>Equipe</th><th>Situação</th><th></th></tr></thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(motoristas)}"><td colspan="8" class="vazio">Nenhum motorista cadastrado.</td></tr>
+                <tr th:each="m : ${motoristas}">
+                    <td><strong th:text="${m.nome}">Nome</strong></td>
+                    <td th:text="${m.telefone} ?: '—'">tel</td>
+                    <!-- RNF06: documento sempre mascarado nas listas -->
+                    <td class="numero" th:text="${m.documentoMascarado}">***.456.***-**</td>
+                    <td th:text="${m.veiculo != null} ? ${m.veiculo.descricao} : '—'">Moto</td>
+                    <td class="numero" th:text="${m.veiculo != null} ? ${#numbers.formatDecimal(m.veiculo.rendimentoKmLitro, 1, 'POINT', 1, 'COMMA')} : '—'">38,0</td>
+                    <td th:text="${m.gerente != null} ? ${m.gerente.nome} : '—'">Carla</td>
+                    <td>
+                        <span th:if="${m.anonimizado}" class="selo">Anonimizado</span>
+                        <span th:unless="${m.anonimizado}" class="selo" th:classappend="${m.ativo} ? 'selo-movimento'" th:text="${m.ativo} ? 'Ativo' : 'Inativo'">Ativo</span>
+                    </td>
+                    <td class="acoes-linha">
+                        <th:block th:unless="${m.anonimizado}">
+                            <a class="botao botao-secundario botao-pequeno" th:href="@{/motoristas/{id}(id=${m.id})}">Editar</a>
+                            <form class="inline" th:action="@{/motoristas/{id}/ativo(id=${m.id})}" method="post">
+                                <input type="hidden" name="ativo" th:value="${!m.ativo}">
+                                <button class="botao botao-secundario botao-pequeno" type="submit" th:text="${m.ativo} ? 'Desativar' : 'Reativar'">Desativar</button>
+                            </form>
+                            <form class="inline" th:action="@{/motoristas/{id}/excluir(id=${m.id})}" method="post"
+                                  data-confirmar="Excluir este motorista? Só é possível se ele não tiver roteiros no histórico.">
+                                <button class="botao botao-perigo botao-pequeno" type="submit">Excluir</button>
+                            </form>
+                            <!-- RNF06: só o administrador anonimiza ou exclui dados pessoais -->
+                            <form class="inline" th:if="${usuario.admin}" th:action="@{/lgpd/motoristas/{id}/anonimizar(id=${m.id})}" method="post"
+                                  data-confirmar="Anonimizar os dados pessoais deste profissional? Nome, telefone, documento e login serão apagados. Não dá para desfazer.">
+                                <button class="botao botao-perigo botao-pequeno" type="submit">Anonimizar (LGPD)</button>
+                            </form>
+                            <form class="inline" th:if="${usuario.admin}" th:action="@{/lgpd/motoristas/{id}/excluir(id=${m.id})}" method="post"
+                                  data-confirmar="Excluir os dados pessoais deste profissional? Se houver histórico, os dados serão anonimizados. Não dá para desfazer.">
+                                <button class="botao botao-perigo botao-pequeno" type="submit">Excluir dados (LGPD)</button>
+                            </form>
+                        </th:block>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragmentos/base :: rodape}"></footer>
+</body>
+</html>

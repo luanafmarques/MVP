@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/base :: head('Gerentes')}"></head>
+<body>
+<header th:replace="~{fragmentos/base :: topo('gerentes')}"></header>
+<main id="conteudo" class="pagina">
+    <th:block th:replace="~{fragmentos/base :: avisos}"></th:block>
+    <div class="cabecalho-pagina">
+        <div>
+            <h1>Gerentes, coordenadores e donos</h1>
+            <p>Cada gerente vê e administra só a própria equipe.</p>
+        </div>
+        <div class="acoes"><a class="botao" th:href="@{/gerentes/novo}">Novo gerente</a></div>
+    </div>
+    <div class="cartao">
+        <div class="tabela-rolagem">
+            <table>
+                <thead><tr><th>Nome</th><th>E-mail (login)</th><th>Telefone</th><th>Equipe</th><th></th></tr></thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(gerentes)}"><td colspan="5" class="vazio">Nenhum gerente cadastrado.</td></tr>
+                <tr th:each="g : ${gerentes}">
+                    <td><strong th:text="${g.nome}">Nome</strong></td>
+                    <td th:text="${g.email}">email</td>
+                    <td th:text="${g.telefone} ?: '—'">tel</td>
+                    <td class="pequeno"><span th:each="m, s : ${g.equipe}"><span th:text="${m.nome}">m</span><span th:unless="${s.last}">, </span></span>
+                        <span th:if="${#lists.isEmpty(g.equipe)}" class="muted">sem motoristas</span></td>
+                    <td class="acoes-linha">
+                        <a class="botao botao-secundario botao-pequeno" th:href="@{/gerentes/{id}(id=${g.id})}">Editar</a>
+                        <form class="inline" th:action="@{/gerentes/{id}/excluir(id=${g.id})}" method="post" data-confirmar="Excluir este gerente?">
+                            <button class="botao botao-perigo botao-pequeno" type="submit">Excluir</button></form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragmentos/base :: rodape}"></footer>
+</body>
+</html>

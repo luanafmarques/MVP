@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/base :: head(${form.id == null} ? 'Novo gerente' : 'Editar gerente')}"></head>
+<body>
+<header th:replace="~{fragmentos/base :: topo('gerentes')}"></header>
+<main id="conteudo" class="pagina">
+    <th:block th:replace="~{fragmentos/base :: avisos}"></th:block>
+    <h1 th:text="${form.id == null} ? 'Novo gerente' : 'Editar ' + ${form.nome}">Gerente</h1>
+    <form class="cartao" th:action="@{/gerentes}" th:object="${form}" method="post">
+        <input type="hidden" th:field="*{id}">
+        <div class="formulario">
+            <div class="campo"><label for="nome">Nome</label><input id="nome" type="text" th:field="*{nome}" required maxlength="120"></div>
+            <div class="campo"><label for="telefone">Telefone</label><input id="telefone" type="tel" th:field="*{telefone}" maxlength="20"></div>
+            <div class="campo"><label for="email">E-mail (também é o login)</label><input id="email" type="email" th:field="*{email}" required maxlength="120"></div>
+            <div class="campo"><label for="senha" th:text="${form.id == null} ? 'Senha inicial' : 'Nova senha (deixe vazio para manter)'">Senha</label>
+                <input id="senha" type="password" th:field="*{senha}" th:required="${form.id == null}" minlength="6" autocomplete="new-password"></div>
+        </div>
+        <fieldset style="margin-top:14px">
+            <legend>Equipe sob responsabilidade</legend>
+            <p class="vazio" th:if="${#lists.isEmpty(motoristas)}">Nenhum motorista cadastrado ainda.</p>
+            <label class="checagem" th:each="m : ${motoristas}" th:unless="${m.anonimizado}">
+                <input type="checkbox" th:field="*{equipeIds}" th:value="${m.id}">
+                <span><span th:text="${m.nome}">Nome</span>
+                    <span class="pequeno muted" th:if="${m.gerente != null and m.gerente.id != form.id}" th:text="'(hoje na equipe de ' + ${m.gerente.nome} + ')'"></span></span>
+            </label>
+        </fieldset>
+        <div class="acoes" style="margin-top:16px">
+            <button class="botao" type="submit">Salvar</button>
+            <a class="botao botao-secundario" th:href="@{/gerentes}">Cancelar</a>
+        </div>
+    </form>
+</main>
+<footer th:replace="~{fragmentos/base :: rodape}"></footer>
+</body>
+</html>

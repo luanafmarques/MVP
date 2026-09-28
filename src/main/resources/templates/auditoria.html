@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/base :: head('Auditoria')}"></head>
+<body>
+<header th:replace="~{fragmentos/base :: topo('auditoria')}"></header>
+<main id="conteudo" class="pagina">
+    <div class="cabecalho-pagina">
+        <div>
+            <h1>Auditoria</h1>
+            <p>Quem alterou, quando, o valor antigo e o valor novo, em pontos, horários e cadastros.</p>
+        </div>
+    </div>
+    <form class="filtros" method="get" th:action="@{/auditoria}">
+        <div class="campo"><label for="inicio">De</label><input id="inicio" type="date" name="inicio" th:value="${inicio}"></div>
+        <div class="campo"><label for="fim">Até</label><input id="fim" type="date" name="fim" th:value="${fim}"></div>
+        <div class="campo"><label for="entidade">O que mudou</label>
+            <select id="entidade" name="entidade">
+                <option value="">Tudo</option>
+                <option th:each="e : ${ {'Ponto','Roteiro','Pedido','Motorista','Gerente','Local','Parâmetro'} }" th:value="${e}"
+                        th:text="${e == 'Local'} ? 'Ponto cadastrado' : ${e}" th:selected="${e == entidade}">Ponto</option>
+            </select></div>
+        <button class="botao botao-secundario" type="submit">Filtrar</button>
+    </form>
+    <div class="cartao">
+        <div class="tabela-rolagem">
+            <table>
+                <thead><tr><th>Quando</th><th>Quem</th><th>Ação</th><th>Registro</th><th>Campo</th><th>Valor antigo</th><th>Valor novo</th><th>Motivo</th></tr></thead>
+                <tbody>
+                <tr th:if="${pagina.empty}"><td colspan="8" class="vazio">Nenhuma alteração nesse período.</td></tr>
+                <tr th:each="a : ${pagina.content}">
+                    <td class="numero" th:text="${#temporals.format(a.dataHora, 'dd/MM/yyyy HH:mm:ss')}">data</td>
+                    <td th:text="${a.usuario}">quem</td>
+                    <td th:text="${a.acao.rotulo}">Alteração</td>
+                    <td class="pequeno" th:text="${a.descricao}">descrição</td>
+                    <td th:text="${a.campo} ?: '—'">campo</td>
+                    <td th:text="${a.valorAntigo} ?: '—'">antes</td>
+                    <td><strong th:text="${a.valorNovo} ?: '—'">depois</strong></td>
+                    <td class="pequeno" th:text="${a.motivo}">motivo</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <nav class="paginacao" aria-label="Páginas" th:if="${pagina.totalPages > 1}">
+            <a class="botao botao-secundario botao-pequeno" th:if="${pagina.hasPrevious()}"
+               th:href="@{/auditoria(inicio=${inicio},fim=${fim},entidade=${entidade},pagina=${pagina.number - 1})}">Anterior</a>
+            <span class="pequeno" th:text="'Página ' + ${pagina.number + 1} + ' de ' + ${pagina.totalPages}">Página</span>
+            <a class="botao botao-secundario botao-pequeno" th:if="${pagina.hasNext()}"
+               th:href="@{/auditoria(inicio=${inicio},fim=${fim},entidade=${entidade},pagina=${pagina.number + 1})}">Próxima</a>
+        </nav>
+    </div>
+</main>
+<footer th:replace="~{fragmentos/base :: rodape}"></footer>
+</body>
+</html>

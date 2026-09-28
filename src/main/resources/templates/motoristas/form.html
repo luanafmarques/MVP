@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/base :: head(${form.id == null} ? 'Novo motorista' : 'Editar motorista')}"></head>
+<body>
+<header th:replace="~{fragmentos/base :: topo('motoristas')}"></header>
+<main id="conteudo" class="pagina">
+    <th:block th:replace="~{fragmentos/base :: avisos}"></th:block>
+    <h1 th:text="${form.id == null} ? 'Novo motorista ou motoboy' : 'Editar ' + ${form.nome}">Motorista</h1>
+    <form class="cartao" th:action="@{/motoristas}" th:object="${form}" method="post">
+        <input type="hidden" th:field="*{id}">
+        <fieldset>
+            <legend>Dados do profissional</legend>
+            <p class="pequeno muted">Coletamos só o necessário (LGPD). O documento aparece mascarado nas listas.</p>
+            <div class="formulario">
+                <div class="campo"><label for="nome">Nome</label><input id="nome" type="text" th:field="*{nome}" required maxlength="120"></div>
+                <div class="campo"><label for="telefone">Telefone</label><input id="telefone" type="tel" th:field="*{telefone}" maxlength="20"></div>
+                <div class="campo"><label for="documento">Documento (CPF ou CNH)</label><input id="documento" type="text" th:field="*{documento}" maxlength="20" inputmode="numeric"></div>
+                <div class="campo" th:if="${usuario.admin}"><label for="gerenteId">Equipe (gerente)</label>
+                    <select id="gerenteId" th:field="*{gerenteId}">
+                        <option value="">Sem equipe</option>
+                        <option th:each="g : ${gerentes}" th:value="${g.id}" th:text="${g.nome}">Gerente</option>
+                    </select></div>
+            </div>
+        </fieldset>
+        <fieldset style="margin-top:14px">
+            <legend>Veículo</legend>
+            <div class="formulario">
+                <div class="campo"><label for="placa">Placa</label><input id="placa" type="text" th:field="*{placa}" maxlength="10" placeholder="ABC1D23"></div>
+                <div class="campo"><label for="tipoVeiculo">Tipo</label>
+                    <select id="tipoVeiculo" th:field="*{tipoVeiculo}">
+                        <option th:each="t : ${tipos}" th:value="${t}" th:text="${t.rotulo}">Moto</option>
+                    </select></div>
+                <div class="campo"><label for="modeloVeiculo">Modelo</label><input id="modeloVeiculo" type="text" th:field="*{modeloVeiculo}" maxlength="80"></div>
+                <div class="campo"><label for="rendimentoKmLitro">Rendimento (km por litro)</label>
+                    <input id="rendimentoKmLitro" type="number" step="0.1" min="0.1" th:field="*{rendimentoKmLitro}">
+                    <span class="ajuda">Usado no custo do trajeto (RN07).</span></div>
+            </div>
+        </fieldset>
+        <fieldset style="margin-top:14px">
+            <legend>Acesso ao sistema</legend>
+            <div class="formulario">
+                <div class="campo"><label for="login">E-mail de login</label>
+                    <input id="login" type="email" th:field="*{login}" th:required="${form.id == null}" th:readonly="${form.id != null}" maxlength="120"></div>
+                <div class="campo"><label for="senha" th:text="${form.id == null} ? 'Senha inicial' : 'Nova senha (deixe vazio para manter)'">Senha</label>
+                    <input id="senha" type="password" th:field="*{senha}" th:required="${form.id == null}" minlength="6" autocomplete="new-password"></div>
+            </div>
+        </fieldset>
+        <div class="acoes" style="margin-top:16px">
+            <button class="botao" type="submit">Salvar</button>
+            <a class="botao botao-secundario" th:href="@{/motoristas}">Cancelar</a>
+        </div>
+    </form>
+</main>
+<footer th:replace="~{fragmentos/base :: rodape}"></footer>
+</body>
+</html>

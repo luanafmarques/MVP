@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/base :: head('Parâmetros')}"></head>
+<body>
+<header th:replace="~{fragmentos/base :: topo('parametros')}"></header>
+<main id="conteudo" class="pagina">
+    <th:block th:replace="~{fragmentos/base :: avisos}"></th:block>
+    <div class="cabecalho-pagina">
+        <div>
+            <h1>Parâmetros de custo e de tempo parado</h1>
+            <p>Mude os valores aqui, sem mexer no código. Toda alteração fica na auditoria.</p>
+        </div>
+        <p class="muted pequeno" th:if="${atual.atualizadoEm != null}"
+           th:text="'Última alteração: ' + ${#temporals.format(atual.atualizadoEm, 'dd/MM/yyyy HH:mm')} + ' por ' + ${atual.atualizadoPor}">Última alteração</p>
+    </div>
+
+    <form th:action="@{/parametros}" th:object="${form}" method="post">
+        <div class="grade">
+            <fieldset class="cartao">
+                <legend>Custos do trajeto (RF09)</legend>
+                <div class="formulario" style="grid-template-columns:1fr">
+                    <div class="campo"><label for="precoCombustivel">Valor do combustível (R$ por litro)</label>
+                        <input id="precoCombustivel" type="number" step="0.001" min="0" th:field="*{precoCombustivel}" required></div>
+                    <div class="campo"><label for="kmLitroPadrao">km por litro padrão do veículo</label>
+                        <input id="kmLitroPadrao" type="number" step="0.01" min="0.01" th:field="*{kmLitroPadrao}" required>
+                        <span class="ajuda">Usado quando o veículo do motorista não tem rendimento cadastrado.</span></div>
+                    <div class="campo"><label for="custoPorKm">Custo por km percorrido (R$)</label>
+                        <input id="custoPorKm" type="number" step="0.001" min="0" th:field="*{custoPorKm}" required>
+                        <span class="ajuda">Desgaste, pneus, manutenção e seguro por km.</span></div>
+                </div>
+                <p class="pequeno muted">Fórmula (RF11): custo = (distância ÷ km/l × combustível) + (distância × custo por km).
+                    <br>Exemplo com os valores atuais, 30 km em um carro de 12 km/l:
+                    <strong th:text="'R$ ' + ${#numbers.formatDecimal(exemplo.custoCombustivel, 1, 'POINT', 2, 'COMMA')} + ' + R$ ' + ${#numbers.formatDecimal(exemplo.custoPorKmRodado, 1, 'POINT', 2, 'COMMA')} + ' = R$ ' + ${#numbers.formatDecimal(exemplo.total, 1, 'POINT', 2, 'COMMA')}">R$</strong></p>
+            </fieldset>
+            <fieldset class="cartao">
+                <legend>Tempo parado e jornada (RF10)</legend>
+                <div class="formulario" style="grid-template-columns:1fr">
+                    <div class="campo"><label for="jornadaHoras">Jornada padrão (horas por dia)</label>
+                        <input id="jornadaHoras" type="number" step="0.5" min="1" max="24" th:field="*{jornadaHoras}" required>
+                        <span class="ajuda">Base do percentual de tempo parado (RN04). Padrão: 8 h.</span></div>
+                    <div class="campo"><label for="ignorarParadaMenorQueMin">Ignorar paradas menores que (minutos)</label>
+                        <input id="ignorarParadaMenorQueMin" type="number" step="1" min="0" th:field="*{ignorarParadaMenorQueMin}" required>
+                        <span class="ajuda">Paradas mais curtas contam zero. Use 0 para desligar.</span></div>
+                    <div class="campo"><label for="tempoMaximoParadaMin">Tempo máximo aceito por parada (minutos)</label>
+                        <input id="tempoMaximoParadaMin" type="number" step="1" min="0" th:field="*{tempoMaximoParadaMin}" required>
+                        <span class="ajuda">Paradas maiores contam só até esse limite e ficam marcadas com ⚠. Use 0 para sem limite.</span></div>
+                </div>
+            </fieldset>
+        </div>
+        <div class="cartao">
+            <label class="checagem"><input type="checkbox" th:field="*{recalcularConcluidos}">
+                <span>Recalcular também os roteiros já concluídos (muda o histórico). Sem marcar, só os roteiros em aberto usam os novos valores.</span></label>
+            <button class="botao" type="submit" style="margin-top:12px">Salvar parâmetros</button>
+        </div>
+    </form>
+</main>
+<footer th:replace="~{fragmentos/base :: rodape}"></footer>
+</body>
+</html>
