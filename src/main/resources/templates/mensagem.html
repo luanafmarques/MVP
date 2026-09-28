@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/base :: head(${titulo})}"></head>
+<body>
+<header th:replace="~{fragmentos/base :: topo('')}"></header>
+<main id="conteudo" class="pagina">
+    <div class="cartao" style="max-width:640px">
+        <h1 th:text="${titulo}">Aviso</h1>
+        <p th:text="${mensagem}">Mensagem</p>
+        <div class="acoes">
+            <a class="botao botao-secundario" href="javascript:history.back()">Voltar</a>
+            <a class="botao" th:if="${usuario != null}" th:href="${usuario.motorista ? '/motorista/hoje' : '/painel'}">Ir para o início</a>
+            <a class="botao" th:if="${usuario == null}" th:href="@{/}">Ir para o início</a>
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragmentos/base :: rodape}"></footer>
+</body>
+</html>

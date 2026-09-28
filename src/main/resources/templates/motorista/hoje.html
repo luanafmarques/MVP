@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/base :: head('Meu roteiro')}"></head>
+<body>
+<header th:replace="~{fragmentos/base :: topo('motorista')}"></header>
+<main id="conteudo" class="pagina app-motorista">
+    <th:block th:replace="~{fragmentos/base :: avisos}"></th:block>
+
+    <h1 th:text="'Olá, ' + ${#strings.arraySplit(usuario.nome, ' ')[0]} + '!'">Olá!</h1>
+
+    <div class="cartao" th:if="${roteiro == null}">
+        <h2>Nenhum roteiro para hoje</h2>
+        <p>Quando o seu gerente montar o roteiro do dia, ele aparece aqui.</p>
+    </div>
+
+    <th:block th:if="${roteiro != null}">
+        <p class="muted">
+            <span th:text="'Roteiro de ' + ${#temporals.format(roteiro.data, 'dd/MM/yyyy')}">Roteiro</span> ·
+            <span class="selo" th:classappend="${roteiro.status.name() == 'EM_ANDAMENTO'} ? 'selo-movimento'" th:text="${roteiro.status.rotulo}">Planejado</span>
+        </p>
+
+        <!-- km inicial do hodômetro -->
+        <div class="cartao" th:if="${roteiro.kmInicial == null and roteiro.status.name() != 'CONCLUIDO'}">
+            <form th:action="@{/motorista/roteiros/{id}/km-inicial(id=${roteiro.id})}" method="post" class="formulario">
+                <div class="campo">
+                    <label for="km-ini">km do hodômetro agora (início do dia)</label>
+                    <input id="km-ini" name="kmInicial" type="number" step="0.1" min="0" inputmode="decimal" required>
+                </div>
+                <div class="campo" style="justify-content:flex-end"><button class="botao botao-secundario" type="submit">Salvar km inicial</button></div>
+            </form>
+        </div>
+
+        <!-- Ponto atual com os botões grandes -->
+        <div class="cartao ponto-atual" th:if="${atual != null and roteiro.status.name() != 'CONCLUIDO'}">
+            <div class="muted" th:text="${atual.partida} ? 'Ponto de partida' : ('Próximo ponto · ' + ${atual.ordem} + 'º')">Próximo ponto</div>
+            <div class="endereco-grande" th:text="${atual.endereco}">Rua Peru, 55</div>
+            <div class="pequeno" th:if="${!#lists.isEmpty(atual.pedidos)}">
+                Pedidos: <span th:each="pe, s : ${atual.pedidos}"><strong th:text="${pe.numero}">PM-1</strong> (<span th:text="${pe.cliente}">cliente</span>)<span th:unless="${s.last}">, </span></span>
+            </div>
+            <p class="pequeno muted" th:if="${atual.partida}">A partida não conta tempo parado. Toque em “Saí” quando começar o trajeto.</p>
+            <div class="botoes-coleta">
+                <form th:action="@{/motorista/pontos/{id}/chegada(id=${atual.id})}" method="post">
+                    <button class="botao-gigante botao-cheguei" type="submit" th:disabled="${atual.chegada != null}">
+                        Cheguei
+                        <small th:text="${atual.chegada != null} ? 'às ' + ${#temporals.format(atual.chegada, 'HH:mm')} : 'grava o horário agora'">grava o horário agora</small>
+                    </button>
+                </form>
+                <form th:action="@{/motorista/pontos/{id}/saida(id=${atual.id})}" method="post">
+                    <button class="botao-gigante botao-sai" type="submit" th:disabled="${atual.chegada == null and !atual.partida}">
+                        Saí
+                        <small th:text="${atual.chegada == null and !atual.partida} ? 'toque em Cheguei antes' : 'grava o horário agora'">grava o horário agora</small>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Trajeto do dia -->
+        <div class="cartao">
+            <div class="cartao-titulo">
+                <h2>Trajeto do dia</h2>
+                <span class="selo selo-parado" th:text="${roteiro.tempoTotalParadoMin} + ' min parado'">0 min parado</span>
+            </div>
+            <div th:replace="~{fragmentos/estrada :: estrada(${estrada})}"></div>
+        </div>
+
+        <!-- Lista de pontos com correção manual -->
+        <div class="cartao">
+            <h2>Pontos</h2>
+            <ul class="lista-pontos">
+                <li th:each="p : ${roteiro.pontos}" th:classappend="${p.partida ? 'partida' : ''} + ${p.saida != null ? ' feito' : ''}">
+                    <span class="ordem" th:text="${p.ordem}">1</span>
+                    <div>
+                        <div th:text="${p.endereco}"><strong>Endereço</strong></div>
+                        <div class="pequeno muted">
+                            Chegada <span th:text="${p.chegada != null} ? ${#temporals.format(p.chegada, 'HH:mm')} : '--:--'">--:--</span> ·
+                            Saída <span th:text="${p.saida != null} ? ${#temporals.format(p.saida, 'HH:mm')} : '--:--'">--:--</span>
+                        </div>
+                        <details class="corrigir" th:if="${roteiro.status.name() != 'CONCLUIDO'}">
+                            <summary>Corrigir horário</summary>
+                            <form th:action="@{/motorista/pontos/{id}/corrigir(id=${p.id})}" method="post">
+                                <div class="campo"><label th:for="'c-' + ${p.id}">Chegada</label>
+                                    <input th:id="'c-' + ${p.id}" type="datetime-local" name="chegada"
+                                           th:value="${p.chegada != null} ? ${#temporals.format(p.chegada, 'yyyy-MM-dd''T''HH:mm')} : ''"></div>
+                                <div class="campo"><label th:for="'s-' + ${p.id}">Saída</label>
+                                    <input th:id="'s-' + ${p.id}" type="datetime-local" name="saida"
+                                           th:value="${p.saida != null} ? ${#temporals.format(p.saida, 'yyyy-MM-dd''T''HH:mm')} : ''"></div>
+                                <div class="campo"><label th:for="'m-' + ${p.id}">Motivo da correção</label>
+                                    <input th:id="'m-' + ${p.id}" type="text" name="motivo" required maxlength="200" placeholder="Ex.: esqueci de tocar em Saí"></div>
+                                <button class="botao botao-secundario" type="submit">Salvar correção</button>
+                            </form>
+                        </details>
+                    </div>
+                    <strong class="numero" th:text="${p.partida} ? 'partida' : (${p.tempoParadoMin != null} ? ${p.tempoParadoMin} + ' min' : '')">15 min</strong>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Encerrar com o km final -->
+        <div class="cartao" th:if="${roteiro.status.name() != 'CONCLUIDO'}">
+            <h2>Encerrar o roteiro</h2>
+            <form th:action="@{/motorista/roteiros/{id}/encerrar(id=${roteiro.id})}" method="post" class="formulario"
+                  data-confirmar="Encerrar o roteiro de hoje? Depois disso, só o gerente pode corrigir.">
+                <div class="campo" th:if="${roteiro.kmInicial == null}">
+                    <label for="enc-ini">km inicial do hodômetro</label>
+                    <input id="enc-ini" name="kmInicial" type="number" step="0.1" min="0" inputmode="decimal">
+                </div>
+                <div class="campo" th:if="${roteiro.kmInicial != null}">
+                    <span class="rotulo">km inicial</span>
+                    <span th:text="${roteiro.kmInicial}">15230.0</span>
+                </div>
+                <div class="campo">
+                    <label for="enc-fim">km final do hodômetro</label>
+                    <input id="enc-fim" name="kmFinal" type="number" step="0.1" min="0" inputmode="decimal">
+                    <span class="ajuda">Distância real = km final − km inicial. O km final precisa ser maior.</span>
+                </div>
+                <div class="largo"><button class="botao botao-verde" type="submit">Encerrar roteiro</button></div>
+            </form>
+        </div>
+
+        <div class="cartao" th:if="${roteiro.status.name() == 'CONCLUIDO'}">
+            <h2>Roteiro encerrado</h2>
+            <p>Tempo parado: <strong th:text="${roteiro.tempoTotalParadoMin} + ' min'">75 min</strong>
+                <span th:if="${roteiro.distanciaRealKm != null}"> · Distância real: <strong th:text="${roteiro.distanciaRealKm} + ' km'">38 km</strong></span></p>
+        </div>
+    </th:block>
+</main>
+<footer th:replace="~{fragmentos/base :: rodape}"></footer>
+</body>
+</html>

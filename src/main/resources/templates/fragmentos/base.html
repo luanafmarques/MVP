@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(titulo)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Ponto Morto: descubra onde e por quanto tempo sua equipe de entrega fica parada.">
+    <title th:text="${titulo} + ' · Ponto Morto'">Ponto Morto</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap">
+    <link rel="stylesheet" th:href="@{/css/ponto-morto.css}">
+    <script th:src="@{/js/tema.js}"></script>
+</head>
+<body>
+
+<header class="topo" th:fragment="topo(ativo)">
+    <a class="pular" href="#conteudo">Pular para o conteúdo</a>
+    <div class="topo-in">
+        <a class="marca" th:href="${usuario == null ? '/' : (usuario.motorista ? '/motorista/hoje' : '/painel')}">
+            <img th:src="@{/img/logo.svg}" alt="" width="36" height="36">
+            <span>Ponto Morto</span>
+        </a>
+        <button type="button" class="botao-topo menu-botao" data-menu-botao aria-expanded="false" aria-controls="menu-principal"
+                th:if="${usuario != null}">Menu</button>
+
+        <nav id="menu-principal" class="menu" aria-label="Menu principal" th:if="${usuario != null}">
+            <th:block th:if="${usuario.motorista}">
+                <a th:href="@{/motorista/hoje}" th:attr="aria-current=${ativo == 'motorista'} ? 'page'">Meu roteiro</a>
+                <a th:href="@{/privacidade}" th:attr="aria-current=${ativo == 'privacidade'} ? 'page'">Privacidade</a>
+            </th:block>
+            <th:block th:unless="${usuario.motorista}">
+                <a th:href="@{/painel}" th:attr="aria-current=${ativo == 'painel'} ? 'page'">Painel</a>
+                <a th:href="@{/historico}" th:attr="aria-current=${ativo == 'historico'} ? 'page'">Histórico</a>
+                <a th:href="@{/roteiros}" th:attr="aria-current=${ativo == 'roteiros'} ? 'page'">Roteiros</a>
+                <a th:href="@{/pedidos}" th:attr="aria-current=${ativo == 'pedidos'} ? 'page'">Pedidos</a>
+                <a th:href="@{/motoristas}" th:attr="aria-current=${ativo == 'motoristas'} ? 'page'">Motoristas</a>
+                <a th:href="@{/locais}" th:attr="aria-current=${ativo == 'locais'} ? 'page'">Pontos</a>
+                <a th:if="${usuario.admin}" th:href="@{/gerentes}" th:attr="aria-current=${ativo == 'gerentes'} ? 'page'">Gerentes</a>
+                <a th:if="${usuario.admin}" th:href="@{/parametros}" th:attr="aria-current=${ativo == 'parametros'} ? 'page'">Parâmetros</a>
+                <a th:href="@{/auditoria}" th:attr="aria-current=${ativo == 'auditoria'} ? 'page'">Auditoria</a>
+            </th:block>
+        </nav>
+
+        <div class="topo-usuario">
+            <button type="button" class="botao-topo" data-alternar-tema aria-pressed="false"><span>Modo escuro</span></button>
+            <th:block th:if="${usuario != null}">
+                <span class="quem" th:text="${usuario.nome} + ' · ' + ${usuario.perfil.rotulo}">Nome</span>
+                <form th:action="@{/sair}" method="post"><button class="botao-topo" type="submit">Sair</button></form>
+            </th:block>
+            <a th:if="${usuario == null}" class="botao-topo" th:href="@{/login}" style="text-decoration:none">Entrar</a>
+        </div>
+    </div>
+</header>
+
+<th:block th:fragment="avisos">
+    <div class="aviso aviso-sucesso" role="status" th:if="${avisoSucesso}" th:text="${avisoSucesso}">Sucesso</div>
+    <div class="aviso aviso-erro" role="alert" th:if="${avisoErro}" th:text="${avisoErro}">Erro</div>
+</th:block>
+
+<footer class="rodape" th:fragment="rodape">
+    <span>Ponto Morto · MVP acadêmico · Engenharia de Software II · PUC Minas</span>
+    <a th:href="@{/privacidade}">Aviso de privacidade</a>
+    <span>Mapas e endereços: © colaboradores do OpenStreetMap</span>
+</footer>
+
+</body>
+</html>

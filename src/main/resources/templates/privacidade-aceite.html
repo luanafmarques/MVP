@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/base :: head('Antes de começar')}"></head>
+<body>
+<header th:replace="~{fragmentos/base :: topo('privacidade')}"></header>
+<main id="conteudo" class="pagina">
+    <div class="cartao" style="max-width:820px">
+        <th:block th:replace="~{fragmentos/base :: avisos}"></th:block>
+        <div class="aviso aviso-info">Este é seu primeiro acesso. Leia o aviso abaixo e confirme para usar o sistema.</div>
+        <div th:replace="~{fragmentos/aviso :: texto}"></div>
+        <form th:action="@{/privacidade/aceite}" method="post" style="margin-top:16px">
+            <label class="checagem"><input type="checkbox" name="concordo" value="true" required>
+                <span>Li e concordo com o aviso de privacidade.</span></label>
+            <button class="botao" type="submit" style="margin-top:12px">Confirmar e continuar</button>
+        </form>
+    </div>
+</main>
+<footer th:replace="~{fragmentos/base :: rodape}"></footer>
+</body>
+</html>

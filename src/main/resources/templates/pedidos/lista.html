@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/base :: head('Pedidos')}"></head>
+<body>
+<header th:replace="~{fragmentos/base :: topo('pedidos')}"></header>
+<main id="conteudo" class="pagina">
+    <th:block th:replace="~{fragmentos/base :: avisos}"></th:block>
+    <div class="cabecalho-pagina">
+        <div>
+            <h1>Pedidos</h1>
+            <p>Cadastre os pedidos; depois escolha os do dia em <a th:href="@{/roteiros/novo}">Montar roteiro</a>.</p>
+        </div>
+        <div class="acoes"><a class="botao" th:href="@{/pedidos/novo}">Novo pedido</a></div>
+    </div>
+
+    <form class="filtros" method="get" th:action="@{/pedidos}">
+        <div class="campo"><label for="inicio">Previsto de</label><input id="inicio" type="date" name="inicio" th:value="${inicio}"></div>
+        <div class="campo"><label for="fim">Até</label><input id="fim" type="date" name="fim" th:value="${fim}"></div>
+        <div class="campo"><label for="status">Situação</label>
+            <select id="status" name="status">
+                <option value="">Todas</option>
+                <option th:each="s : ${situacoes}" th:value="${s}" th:text="${s.rotulo}" th:selected="${s == status}">Situação</option>
+            </select></div>
+        <button class="botao botao-secundario" type="submit">Filtrar</button>
+    </form>
+
+    <div class="cartao">
+        <div class="tabela-rolagem">
+            <table>
+                <thead><tr><th>Número</th><th>Cliente</th><th>Endereço de entrega</th><th>Previsto</th><th>Situação</th><th>Coordenadas</th><th></th></tr></thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(pedidos)}"><td colspan="7" class="vazio">Nenhum pedido nesse período.</td></tr>
+                <tr th:each="p : ${pedidos}">
+                    <td><strong th:text="${p.numero}">PM-1</strong></td>
+                    <td th:text="${p.cliente}">Cliente</td>
+                    <td th:text="${p.enderecoEntrega}">Endereço</td>
+                    <td class="numero" th:text="${#temporals.format(p.dataPrevista, 'dd/MM/yyyy')}">data</td>
+                    <td><span class="selo" th:classappend="${p.status.name() == 'ENTREGUE'} ? 'selo-movimento' : (${p.status.name() == 'PENDENTE'} ? 'selo-parado')" th:text="${p.status.rotulo}">Pendente</span>
+                        <a class="pequeno" th:if="${p.ponto != null}" th:href="@{/roteiros/{id}(id=${p.ponto.roteiro.id})}" th:text="'ponto ' + ${p.ponto.ordem}">ponto</a></td>
+                    <td class="pequeno">
+                        <span th:if="${p.temCoordenadas()}" th:text="${p.latitude} + ', ' + ${p.longitude}">coord</span>
+                        <span th:unless="${p.temCoordenadas()}" class="selo selo-alerta">sem coordenadas</span>
+                    </td>
+                    <td class="acoes-linha">
+                        <a class="botao botao-secundario botao-pequeno" th:href="@{/pedidos/{id}(id=${p.id})}">Editar</a>
+                        <form class="inline" th:if="${p.status.name() == 'PENDENTE'}" th:action="@{/pedidos/{id}/excluir(id=${p.id})}" method="post"
+                              data-confirmar="Excluir este pedido?">
+                            <button class="botao botao-perigo botao-pequeno" type="submit">Excluir</button></form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragmentos/base :: rodape}"></footer>
+</body>
+</html>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Algo deu errado · Ponto Morto</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
+    <link rel="stylesheet" th:href="@{/css/ponto-morto.css}">
+    <script th:src="@{/js/tema.js}"></script>
+</head>
+<body>
+<main class="pagina">
+    <div class="cartao" style="max-width:640px">
+        <h1 th:text="${status == 404} ? 'Página não encontrada' : (${status == 403} ? 'Acesso negado' : 'Algo deu errado')">Algo deu errado</h1>
+        <p th:if="${status == 404}">O endereço que você abriu não existe.</p>
+        <p th:if="${status == 403}">Seu perfil não tem permissão para esta ação.</p>
+        <p th:if="${status != 404 and status != 403}">Tente de novo em instantes. Se o problema continuar, avise o administrador.</p>
+        <p class="muted pequeno" th:text="'Código ' + ${status}">Código 500</p>
+        <a class="botao" th:href="@{/}">Voltar ao início</a>
+    </div>
+</main>
+</body>
+</html>

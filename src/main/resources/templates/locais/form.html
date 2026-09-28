@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/base :: head(${form.id == null} ? 'Novo ponto' : 'Editar ponto')}"></head>
+<body>
+<header th:replace="~{fragmentos/base :: topo('locais')}"></header>
+<main id="conteudo" class="pagina">
+    <th:block th:replace="~{fragmentos/base :: avisos}"></th:block>
+    <h1 th:text="${form.id == null} ? 'Novo ponto cadastrado' : 'Editar ' + ${form.nome}">Ponto</h1>
+    <form class="cartao" th:action="@{/locais}" th:object="${form}" method="post">
+        <input type="hidden" th:field="*{id}">
+        <div class="formulario">
+            <div class="campo"><label for="nome">Nome</label><input id="nome" type="text" th:field="*{nome}" required maxlength="120" placeholder="Ex.: Base Contagem"></div>
+            <div class="campo largo"><label for="endereco">Endereço</label>
+                <input id="endereco" type="text" th:field="*{endereco}" required maxlength="255" placeholder="Rua, número - bairro, cidade/UF"></div>
+            <div th:replace="~{fragmentos/geo :: coordenadas('endereco')}"></div>
+        </div>
+        <div class="acoes" style="margin-top:16px">
+            <button class="botao" type="submit">Salvar ponto</button>
+            <a class="botao botao-secundario" th:href="@{/locais}">Cancelar</a>
+        </div>
+    </form>
+</main>
+<footer th:replace="~{fragmentos/base :: rodape}"></footer>
+<link rel="stylesheet" th:href="@{/webjars/leaflet/dist/leaflet.css}">
+<script th:src="@{/webjars/leaflet/dist/leaflet.js}"></script>
+<script th:src="@{/js/mapa.js}"></script>
+</body>
+</html>

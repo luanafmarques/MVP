@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/base :: head('Roteiro')}"></head>
+<body>
+<header th:replace="~{fragmentos/base :: topo('roteiros')}"></header>
+<main id="conteudo" class="pagina" th:with="aberto=${roteiro.status.name() != 'CONCLUIDO'}">
+    <th:block th:replace="~{fragmentos/base :: avisos}"></th:block>
+    <div class="cabecalho-pagina">
+        <div>
+            <h1 th:text="${roteiro.motorista.nome} + ' · ' + ${#temporals.format(roteiro.data, 'dd/MM/yyyy')}">Roteiro</h1>
+            <p>
+                <span class="selo" th:classappend="${roteiro.status.name() == 'EM_ANDAMENTO'} ? 'selo-movimento'" th:text="${roteiro.status.rotulo}">Planejado</span>
+                <span th:if="${roteiro.motorista.veiculo != null}" th:text="' · ' + ${roteiro.motorista.veiculo.descricao}">Moto</span>
+            </p>
+        </div>
+        <div class="acoes">
+            <a class="botao botao-secundario" th:href="@{/roteiros}">Voltar</a>
+            <form class="inline" th:action="@{/roteiros/{id}/excluir(id=${roteiro.id})}" method="post" th:if="${!roteiro.coletaIniciada}"
+                  data-confirmar="Excluir este roteiro? Os pedidos voltam para a lista de pendentes.">
+                <button class="botao botao-perigo" type="submit">Excluir roteiro</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="kpis">
+        <div class="kpi kpi-destaque"><div class="kpi-rotulo">Tempo total parado</div>
+            <div class="kpi-valor" th:text="${roteiro.tempoTotalParadoMin} + ' min'">75 min</div>
+            <div class="kpi-detalhe">soma dos pontos, sem a partida</div></div>
+        <div class="kpi"><div class="kpi-rotulo">% da jornada</div>
+            <div class="kpi-valor" th:text="${#numbers.formatDecimal(percentual, 1, 'POINT', 1, 'COMMA')} + '%'">15,6%</div>
+            <div class="kpi-detalhe" th:text="'jornada de ' + ${#numbers.formatDecimal(jornada, 1, 'POINT', 0, 'COMMA')} + ' h'">jornada de 8 h</div></div>
+        <div class="kpi"><div class="kpi-rotulo">Distância estimada</div>
+            <div class="kpi-valor" th:text="${roteiro.distanciaEstimadaKm != null} ? ${#numbers.formatDecimal(roteiro.distanciaEstimadaKm, 1, 'POINT', 1, 'COMMA')} + ' km' : '—'">30 km</div>
+            <div class="kpi-detalhe">
+                <span th:if="${roteiro.distanciaEstimadaAproximada}" class="selo selo-aproximado" title="A API de rotas não respondeu ou falta coordenada: linha reta (Haversine)">aproximada</span>
+                <span th:unless="${roteiro.distanciaEstimadaAproximada}">pelas ruas (OSRM)</span></div></div>
+        <div class="kpi"><div class="kpi-rotulo">Distância real</div>
+            <div class="kpi-valor" th:text="${roteiro.distanciaRealKm != null} ? ${#numbers.formatDecimal(roteiro.distanciaRealKm, 1, 'POINT', 1, 'COMMA')} + ' km' : '—'">38 km</div>
+            <div class="kpi-detalhe" th:if="${roteiro.diferencaDistanciaKm != null}"
+                 th:text="'diferença: ' + (${roteiro.diferencaDistanciaKm.signum() > 0} ? '+' : '') + ${#numbers.formatDecimal(roteiro.diferencaDistanciaKm, 1, 'POINT', 1, 'COMMA')} + ' km'">diferença</div>
+            <div class="kpi-detalhe" th:unless="${roteiro.diferencaDistanciaKm != null}">km final − km inicial do hodômetro</div></div>
+        <div class="kpi"><div class="kpi-rotulo">Custo estimado</div>
+            <div class="kpi-valor" th:text="'R$ ' + ${#numbers.formatDecimal(roteiro.custoEstimado, 1, 'POINT', 2, 'COMMA')}">R$ 20,00</div>
+            <div class="kpi-detalhe" th:text="'usa a distância ' + (${roteiro.distanciaRealKm != null} ? 'real' : 'estimada')">usa a distância real</div></div>
+    </div>
+
+    <div class="cartao">
+        <h2>Trajeto</h2>
+        <div th:replace="~{fragmentos/estrada :: estrada(${estrada})}"></div>
+    </div>
+
+    <div class="cartao">
+        <div class="cartao-titulo">
+            <h2>Pontos do roteiro</h2>
+            <span class="muted pequeno">A ordem define o trajeto. O ponto 1 é a partida e não conta tempo parado.</span>
+        </div>
+        <div class="tabela-rolagem">
+            <table>
+                <thead><tr><th>Ordem</th><th>Endereço</th><th>Pedidos</th><th>Chegada</th><th>Saída</th><th class="numero">Parado</th><th><span class="sr-only">Ações</span></th></tr></thead>
+                <tbody>
+                <tr th:each="p, s : ${roteiro.pontos}">
+                    <td><strong th:text="${p.ordem} + 'º'">1º</strong></td>
+                    <td>
+                        <div th:text="${p.endereco}">Endereço</div>
+                        <div class="pequeno muted" th:if="${p.temCoordenadas()}" th:text="${p.latitude} + ', ' + ${p.longitude}">coord</div>
+                    </td>
+                    <td class="pequeno"><span th:each="pe, ps : ${p.pedidos}"><span th:text="${pe.numero}" th:title="${pe.cliente}">PM</span><span th:unless="${ps.last}">, </span></span></td>
+                    <td class="numero" th:text="${p.chegada != null} ? ${#temporals.format(p.chegada, 'dd/MM HH:mm')} : '—'">08:25</td>
+                    <td class="numero" th:text="${p.saida != null} ? ${#temporals.format(p.saida, 'dd/MM HH:mm')} : '—'">08:40</td>
+                    <td class="numero">
+                        <span th:if="${p.partida}" class="selo selo-movimento">partida</span>
+                        <strong th:if="${!p.partida and p.tempoParadoMin != null}" th:text="${p.tempoParadoMin} + ' min'">15 min</strong>
+                        <span th:if="${p.acimaDoMaximo}" class="selo selo-alerta" th:title="'Parada de ' + ${p.tempoBrutoMin} + ' min limitada ao máximo'">acima do máximo</span>
+                        <span th:if="${p.ignorada}" class="selo" title="Parada menor que o mínimo: conta zero">curta</span>
+                    </td>
+                    <td class="acoes-linha">
+                        <th:block th:if="${aberto}">
+                            <form class="inline" th:action="@{/roteiros/{id}/pontos/{p}/subir(id=${roteiro.id},p=${p.id})}" method="post">
+                                <button class="botao botao-secundario botao-pequeno botao-icone" type="submit" th:disabled="${s.first}" th:attr="aria-label='Subir o ponto ' + ${p.ordem}">↑</button></form>
+                            <form class="inline" th:action="@{/roteiros/{id}/pontos/{p}/descer(id=${roteiro.id},p=${p.id})}" method="post">
+                                <button class="botao botao-secundario botao-pequeno botao-icone" type="submit" th:disabled="${s.last}" th:attr="aria-label='Descer o ponto ' + ${p.ordem}">↓</button></form>
+                            <form class="inline" th:action="@{/roteiros/{id}/pontos/{p}/remover(id=${roteiro.id},p=${p.id})}" method="post"
+                                  th:if="${p.chegada == null and p.saida == null}" data-confirmar="Remover este ponto do roteiro?">
+                                <button class="botao botao-perigo botao-pequeno" type="submit">Remover</button></form>
+                        </th:block>
+                        <details class="corrigir">
+                            <summary>Corrigir horários</summary>
+                            <form th:action="@{/roteiros/{id}/pontos/{p}/corrigir(id=${roteiro.id},p=${p.id})}" method="post">
+                                <input type="datetime-local" name="chegada" aria-label="Chegada"
+                                       th:value="${p.chegada != null} ? ${#temporals.format(p.chegada, 'yyyy-MM-dd''T''HH:mm')} : ''">
+                                <input type="datetime-local" name="saida" aria-label="Saída"
+                                       th:value="${p.saida != null} ? ${#temporals.format(p.saida, 'yyyy-MM-dd''T''HH:mm')} : ''">
+                                <input type="text" name="motivo" required maxlength="200" placeholder="Motivo (vai para a auditoria)" aria-label="Motivo">
+                                <button class="botao botao-secundario botao-pequeno" type="submit">Salvar</button>
+                            </form>
+                        </details>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="grade">
+        <div class="cartao" th:if="${aberto}">
+            <h2>Incluir pedidos do dia</h2>
+            <form th:action="@{/roteiros/{id}/pedidos(id=${roteiro.id})}" method="post">
+                <p class="vazio" th:if="${#lists.isEmpty(pedidosPendentes)}">Nenhum pedido pendente para esta data.</p>
+                <label class="checagem" th:each="pe : ${pedidosPendentes}">
+                    <input type="checkbox" name="pedidoIds" th:value="${pe.id}">
+                    <span><strong th:text="${pe.numero}">PM</strong> · <span th:text="${pe.cliente}">cliente</span><br>
+                        <span class="pequeno muted" th:text="${pe.enderecoEntrega}">endereço</span></span>
+                </label>
+                <button class="botao botao-secundario" type="submit" th:unless="${#lists.isEmpty(pedidosPendentes)}" style="margin-top:8px">Incluir marcados</button>
+            </form>
+        </div>
+
+        <div class="cartao" th:if="${aberto}">
+            <h2>Incluir ponto cadastrado</h2>
+            <form th:action="@{/roteiros/{id}/locais(id=${roteiro.id})}" method="post" class="formulario" style="grid-template-columns:1fr">
+                <div class="campo"><label for="localId">Ponto</label>
+                    <select id="localId" name="localId" required>
+                        <option th:each="l : ${locais}" th:value="${l.id}" th:text="${l.nome}">Base</option>
+                    </select></div>
+                <label class="checagem"><input type="checkbox" name="comoPartida" value="true"><span>Usar como ponto de partida (vira o ponto 1)</span></label>
+                <button class="botao botao-secundario" type="submit">Incluir no fim do trajeto</button>
+            </form>
+        </div>
+
+        <div class="cartao">
+            <h2>Distância e hodômetro</h2>
+            <form th:action="@{/roteiros/{id}/distancia(id=${roteiro.id})}" method="post" th:if="${aberto}" style="margin-bottom:12px">
+                <button class="botao botao-secundario" type="submit">Recalcular distância estimada</button>
+            </form>
+            <form th:action="@{/roteiros/{id}/hodometro(id=${roteiro.id})}" method="post" class="formulario">
+                <div class="campo"><label for="kmIni">km inicial</label><input id="kmIni" name="kmInicial" type="number" step="0.1" min="0" th:value="${roteiro.kmInicial}"></div>
+                <div class="campo"><label for="kmFim">km final</label><input id="kmFim" name="kmFinal" type="number" step="0.1" min="0" th:value="${roteiro.kmFinal}"></div>
+                <div class="campo largo"><label for="kmMotivo">Motivo da correção</label><input id="kmMotivo" name="motivo" type="text" required maxlength="200"></div>
+                <div class="largo"><button class="botao botao-secundario" type="submit">Salvar hodômetro</button></div>
+            </form>
+            <p class="pequeno muted" style="margin-top:12px" th:text="'Custo = (' + ${#numbers.formatDecimal(roteiro.distanciaParaCusto, 1, 'POINT', 1, 'COMMA')} + ' km ÷ ' + ${#numbers.formatDecimal(roteiro.kmLitroUsado, 1, 'POINT', 1, 'COMMA')} + ' km/l × R$ ' + ${#numbers.formatDecimal(roteiro.precoCombustivelUsado, 1, 'POINT', 2, 'COMMA')} + ') + (' + ${#numbers.formatDecimal(roteiro.distanciaParaCusto, 1, 'POINT', 1, 'COMMA')} + ' km × R$ ' + ${#numbers.formatDecimal(roteiro.custoPorKmUsado, 1, 'POINT', 2, 'COMMA')} + ')'">Custo = ...</p>
+        </div>
+    </div>
+
+    <div class="cartao">
+        <h2>Alterações neste roteiro</h2>
+        <p class="muted pequeno">Correções de horário ficam na <a th:href="@{/auditoria(entidade='Ponto')}">auditoria de pontos</a>.</p>
+        <div class="tabela-rolagem">
+            <table>
+                <thead><tr><th>Quando</th><th>Quem</th><th>O quê</th><th>Antes</th><th>Depois</th><th>Motivo</th></tr></thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(historico)}"><td colspan="6" class="vazio">Sem alterações registradas.</td></tr>
+                <tr th:each="a : ${historico}">
+                    <td class="numero" th:text="${#temporals.format(a.dataHora, 'dd/MM/yyyy HH:mm')}">data</td>
+                    <td th:text="${a.usuario}">quem</td>
+                    <td th:text="${a.campo != null} ? ${a.campo} : ${a.acao.rotulo}">campo</td>
+                    <td th:text="${a.valorAntigo}">antes</td>
+                    <td th:text="${a.valorNovo}">depois</td>
+                    <td th:text="${a.motivo}">motivo</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragmentos/base :: rodape}"></footer>
+</body>
+</html>

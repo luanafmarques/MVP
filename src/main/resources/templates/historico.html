@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/base :: head('Histórico')}"></head>
+<body>
+<header th:replace="~{fragmentos/base :: topo('historico')}"></header>
+<main id="conteudo" class="pagina">
+    <div class="cabecalho-pagina">
+        <div>
+            <h1>Histórico de pontos e tempos parados</h1>
+            <p>Todos os pontos do período, com endereço e horários registrados. Filtre por data e motorista.</p>
+        </div>
+        <div class="acoes">
+            <a class="botao botao-secundario"
+               th:href="@{/historico/exportar.csv(inicio=${filtro.inicio},fim=${filtro.fim},motoristaId=${filtro.motoristaId},somenteParadas=${filtro.somenteParadas})}">Exportar CSV</a>
+            <a class="botao botao-secundario"
+               th:href="@{/historico/exportar.pdf(inicio=${filtro.inicio},fim=${filtro.fim},motoristaId=${filtro.motoristaId},somenteParadas=${filtro.somenteParadas})}">Exportar PDF</a>
+        </div>
+    </div>
+
+    <form class="filtros" method="get" th:action="@{/historico}">
+        <div class="campo"><label for="inicio">De</label><input id="inicio" type="date" name="inicio" th:value="${filtro.inicio}"></div>
+        <div class="campo"><label for="fim">Até</label><input id="fim" type="date" name="fim" th:value="${filtro.fim}"></div>
+        <div class="campo"><label for="motoristaId">Motorista</label>
+            <select id="motoristaId" name="motoristaId">
+                <option value="">Todos</option>
+                <option th:each="m : ${motoristas}" th:value="${m.id}" th:text="${m.nome}" th:selected="${m.id == filtro.motoristaId}">Nome</option>
+            </select></div>
+        <label class="checagem" style="align-self:center"><input type="checkbox" name="somenteParadas" value="true" th:checked="${filtro.somenteParadas}">
+            <span>Só paradas com tempo (sem partida)</span></label>
+        <button class="botao" type="submit">Filtrar</button>
+    </form>
+
+    <div class="cartao">
+        <p class="muted pequeno" th:text="${pagina.totalElements} + ' ponto(s) encontrados.'">0 pontos</p>
+        <div class="tabela-rolagem">
+            <table>
+                <thead><tr><th>Data</th><th>Motorista</th><th>Ordem</th><th>Endereço</th><th>Chegada</th><th>Saída</th><th class="numero">Parado</th><th>Situação</th></tr></thead>
+                <tbody>
+                <tr th:if="${pagina.empty}"><td colspan="8" class="vazio">Nenhum ponto nesse período.</td></tr>
+                <tr th:each="p : ${pagina.content}">
+                    <td><a th:href="@{/roteiros/{id}(id=${p.roteiro.id})}" th:text="${#temporals.format(p.roteiro.data, 'dd/MM/yyyy')}">data</a></td>
+                    <td th:text="${p.roteiro.motorista.nome}">Motorista</td>
+                    <td th:text="${p.ordem} + 'º'">1º</td>
+                    <td th:text="${p.endereco}">Endereço</td>
+                    <td class="numero" th:text="${p.chegada != null} ? ${#temporals.format(p.chegada, 'dd/MM HH:mm')} : '—'">—</td>
+                    <td class="numero" th:text="${p.saida != null} ? ${#temporals.format(p.saida, 'dd/MM HH:mm')} : '—'">—</td>
+                    <td class="numero"><strong th:if="${!p.partida and p.tempoParadoMin != null}" th:text="${p.tempoParadoMin} + ' min'">15 min</strong></td>
+                    <td>
+                        <span th:if="${p.partida}" class="selo selo-movimento">partida (não conta)</span>
+                        <span th:if="${p.acimaDoMaximo}" class="selo selo-alerta" th:text="'acima do máximo (' + ${p.tempoBrutoMin} + ' min)'">acima</span>
+                        <span th:if="${p.ignorada}" class="selo">parada curta</span>
+                        <span th:if="${!p.partida and p.saida == null}" class="selo" th:text="${p.chegada == null} ? 'não visitado' : 'no local'">pendente</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <nav class="paginacao" aria-label="Páginas" th:if="${pagina.totalPages > 1}">
+            <a class="botao botao-secundario botao-pequeno" th:if="${pagina.hasPrevious()}"
+               th:href="@{/historico(inicio=${filtro.inicio},fim=${filtro.fim},motoristaId=${filtro.motoristaId},somenteParadas=${filtro.somenteParadas},pagina=${pagina.number - 1})}">Anterior</a>
+            <span class="pequeno" th:text="'Página ' + ${pagina.number + 1} + ' de ' + ${pagina.totalPages}">Página 1</span>
+            <a class="botao botao-secundario botao-pequeno" th:if="${pagina.hasNext()}"
+               th:href="@{/historico(inicio=${filtro.inicio},fim=${filtro.fim},motoristaId=${filtro.motoristaId},somenteParadas=${filtro.somenteParadas},pagina=${pagina.number + 1})}">Próxima</a>
+        </nav>
+    </div>
+</main>
+<footer th:replace="~{fragmentos/base :: rodape}"></footer>
+</body>
+</html>

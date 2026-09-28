@@ -1,0 +1,72 @@
+# Configuração do Ponto Morto.
+# Os dados de acesso ao banco vêm de variáveis de ambiente ou do arquivo .env na raiz do projeto
+# (veja .env.example). Sem .env, o sistema usa o PostgreSQL do docker-compose (porta 5433).
+spring:
+  application:
+    name: ponto-morto
+  config:
+    import: optional:file:.env[.properties]
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/pontomorto}
+    username: ${DB_USER:pontomorto}
+    password: ${DB_PASSWORD:pontomorto}
+    hikari:
+      # O plano gratuito do Supabase limita as conexões; 5 é suficiente para o MVP.
+      maximum-pool-size: ${DB_POOL:5}
+      connection-timeout: 20000
+  flyway:
+    # Esquema próprio: no Supabase, o esquema "public" é exposto pela API REST automática.
+    schemas: pontomorto
+    default-schema: pontomorto
+  jpa:
+    open-in-view: true
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: pontomorto
+        # Carrega coleções e associações em blocos (evita uma consulta por roteiro no banco remoto).
+        default_batch_fetch_size: 100
+        jdbc:
+          batch_size: 50
+          time_zone: America/Sao_Paulo
+        order_inserts: true
+        order_updates: true
+  thymeleaf:
+    cache: false
+  web:
+    # Interface sempre em português do Brasil (datas e números), qualquer que seja o navegador.
+    locale: pt_BR
+    locale-resolver: fixed
+  mvc:
+    format:
+      date: iso
+      date-time: iso
+
+server:
+  port: ${PORT:8080}
+  servlet:
+    session:
+      timeout: 8h
+  error:
+    whitelabel:
+      enabled: false
+
+pontomorto:
+  fuso-horario: America/Sao_Paulo
+  dados-exemplo:
+    # Carrega usuários, roteiros A, B e C e histórico quando o banco está vazio.
+    habilitado: true
+    meses-historico: 12
+  geocodificacao:
+    habilitado: true
+    url: https://nominatim.openstreetmap.org/search
+    user-agent: PontoMorto/1.0 (trabalho academico PUC Minas - Engenharia de Software II)
+  osrm:
+    habilitado: true
+    url: https://router.project-osrm.org/route/v1/driving
+    timeout-ms: 5000
+
+logging:
+  level:
+    org.hibernate.orm.deprecation: error

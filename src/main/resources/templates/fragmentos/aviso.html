@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- Texto do aviso, reutilizado na tela de aceite do primeiro acesso. -->
+<th:block th:fragment="texto">
+    <h1>Aviso de privacidade</h1>
+    <p class="muted" th:text="'Versão ' + ${versaoAviso}">Versão 1.0</p>
+    <p>O Ponto Morto é usado pela sua empresa para medir o tempo parado em cada ponto do roteiro de entregas.
+        Este aviso explica, em linguagem simples, quais dados seus usamos e por quê (Lei Geral de Proteção de Dados, Lei 13.709/2018).</p>
+    <h2>Quais dados coletamos</h2>
+    <ul>
+        <li><strong>Cadastro:</strong> nome, telefone, documento (CPF ou CNH) e o veículo que você usa.</li>
+        <li><strong>Trabalho:</strong> endereços dos pontos do roteiro, horários de chegada e saída que você registra
+            (botões “Cheguei” e “Saí”) e o km do hodômetro no início e no fim do dia.</li>
+        <li><strong>Acesso:</strong> seu e-mail de login e a data em que você aceitou este aviso.</li>
+    </ul>
+    <p><strong>Não coletamos</strong> sua localização em tempo real. O sistema só grava o horário quando você toca nos botões.</p>
+    <h2>Para que usamos</h2>
+    <ul>
+        <li>Calcular o tempo parado em cada ponto e o custo estimado do trajeto.</li>
+        <li>Mostrar ao gerente onde estão os gargalos, para renegociar prazos com clientes.</li>
+    </ul>
+    <h2>Quem vê</h2>
+    <p>Você vê só o seu roteiro do dia. O gerente da sua equipe e o administrador veem os roteiros e o histórico.
+        Nas listas, o documento aparece mascarado (ex.: ***.456.***-**). Toda correção de horário fica registrada
+        com quem alterou, quando, o valor antigo e o novo.</p>
+    <h2>Seus direitos</h2>
+    <p>Você pode pedir ao administrador para ver, corrigir, anonimizar ou excluir seus dados pessoais.
+        Depois da anonimização, os tempos de parada continuam nas estatísticas, mas sem identificar você.</p>
+</th:block>
+</body>
+</html>

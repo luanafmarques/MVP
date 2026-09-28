@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/base :: head('Pontos cadastrados')}"></head>
+<body>
+<header th:replace="~{fragmentos/base :: topo('locais')}"></header>
+<main id="conteudo" class="pagina">
+    <th:block th:replace="~{fragmentos/base :: avisos}"></th:block>
+    <div class="cabecalho-pagina">
+        <div>
+            <h1>Pontos cadastrados</h1>
+            <p>Endereços usados com frequência, como a base de partida. Podem entrar em qualquer roteiro.</p>
+        </div>
+        <div class="acoes"><a class="botao" th:href="@{/locais/novo}">Novo ponto</a></div>
+    </div>
+    <div class="cartao">
+        <div class="tabela-rolagem">
+            <table>
+                <thead><tr><th>Nome</th><th>Endereço</th><th>Latitude</th><th>Longitude</th><th>Situação</th><th></th></tr></thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(locais)}"><td colspan="6" class="vazio">Nenhum ponto cadastrado.</td></tr>
+                <tr th:each="l : ${locais}">
+                    <td><strong th:text="${l.nome}">Base</strong></td>
+                    <td th:text="${l.endereco}">Endereço</td>
+                    <td class="numero" th:text="${l.latitude}">-19.9</td>
+                    <td class="numero" th:text="${l.longitude}">-43.9</td>
+                    <td><span class="selo" th:classappend="${l.ativo} ? 'selo-movimento'" th:text="${l.ativo} ? 'Ativo' : 'Inativo'">Ativo</span></td>
+                    <td class="acoes-linha">
+                        <a class="botao botao-secundario botao-pequeno" th:href="@{/locais/{id}(id=${l.id})}">Editar</a>
+                        <form class="inline" th:action="@{/locais/{id}/ativo(id=${l.id})}" method="post">
+                            <input type="hidden" name="ativo" th:value="${!l.ativo}">
+                            <button class="botao botao-secundario botao-pequeno" type="submit" th:text="${l.ativo} ? 'Desativar' : 'Reativar'">Desativar</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragmentos/base :: rodape}"></footer>
+</body>
+</html>

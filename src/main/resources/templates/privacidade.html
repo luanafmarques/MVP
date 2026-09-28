@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/base :: head('Aviso de privacidade')}"></head>
+<body>
+<header th:replace="~{fragmentos/base :: topo('privacidade')}"></header>
+<main id="conteudo" class="pagina">
+    <div class="cartao" style="max-width:820px">
+        <div th:replace="~{fragmentos/aviso :: texto}"></div>
+    </div>
+</main>
+<footer th:replace="~{fragmentos/base :: rodape}"></footer>
+
+</body>
+</html>

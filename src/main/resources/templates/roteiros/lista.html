@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/base :: head('Roteiros')}"></head>
+<body>
+<header th:replace="~{fragmentos/base :: topo('roteiros')}"></header>
+<main id="conteudo" class="pagina">
+    <th:block th:replace="~{fragmentos/base :: avisos}"></th:block>
+    <div class="cabecalho-pagina">
+        <div>
+            <h1>Roteiros</h1>
+            <p>Cada motorista tem um único roteiro por dia. Os pontos seguem a ordem 1, 2, 3...</p>
+        </div>
+        <div class="acoes"><a class="botao" th:href="@{/roteiros/novo}">Montar roteiro a partir dos pedidos</a></div>
+    </div>
+
+    <form class="filtros" method="get" th:action="@{/roteiros}">
+        <div class="campo"><label for="inicio">De</label><input id="inicio" type="date" name="inicio" th:value="${inicio}"></div>
+        <div class="campo"><label for="fim">Até</label><input id="fim" type="date" name="fim" th:value="${fim}"></div>
+        <div class="campo"><label for="motoristaId">Motorista</label>
+            <select id="motoristaId" name="motoristaId">
+                <option value="">Todos</option>
+                <option th:each="m : ${motoristas}" th:value="${m.id}" th:text="${m.nome}" th:selected="${m.id == motoristaId}">Nome</option>
+            </select></div>
+        <button class="botao botao-secundario" type="submit">Filtrar</button>
+    </form>
+
+    <div class="cartao">
+        <div class="tabela-rolagem">
+            <table>
+                <thead><tr><th>Data</th><th>Motorista</th><th>Situação</th><th class="numero">Pontos</th><th class="numero">Parado</th>
+                    <th class="numero">Dist. estimada</th><th class="numero">Dist. real</th><th class="numero">Custo</th><th></th></tr></thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(roteiros)}"><td colspan="9" class="vazio">Nenhum roteiro nesse período.</td></tr>
+                <tr th:each="r : ${roteiros}">
+                    <td th:text="${#temporals.format(r.data, 'dd/MM/yyyy')}">21/09/2026</td>
+                    <td th:text="${r.motorista.nome}">João</td>
+                    <td><span class="selo" th:classappend="${r.status.name() == 'EM_ANDAMENTO'} ? 'selo-movimento'" th:text="${r.status.rotulo}">Concluído</span></td>
+                    <td class="numero" th:text="${r.pontos.size()}">4</td>
+                    <td class="numero" th:text="${r.tempoTotalParadoMin} + ' min'">75 min</td>
+                    <td class="numero"><span th:text="${r.distanciaEstimadaKm != null} ? ${#numbers.formatDecimal(r.distanciaEstimadaKm, 1, 'POINT', 1, 'COMMA')} + ' km' : '—'">30,0 km</span>
+                        <span th:if="${r.distanciaEstimadaAproximada}" class="selo selo-aproximado" title="Linha reta: a API de rotas não respondeu">aprox.</span></td>
+                    <td class="numero" th:text="${r.distanciaRealKm != null} ? ${#numbers.formatDecimal(r.distanciaRealKm, 1, 'POINT', 1, 'COMMA')} + ' km' : '—'">38,4 km</td>
+                    <td class="numero" th:text="${r.custoEstimado != null} ? 'R$ ' + ${#numbers.formatDecimal(r.custoEstimado, 1, 'POINT', 2, 'COMMA')} : '—'">R$ 20,00</td>
+                    <td class="acoes-linha"><a class="botao botao-secundario botao-pequeno" th:href="@{/roteiros/{id}(id=${r.id})}">Abrir</a></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragmentos/base :: rodape}"></footer>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/base :: head('Todo minuto parado tem endereço')}"></head>
+<body>
+<header th:replace="~{fragmentos/base :: topo('inicio')}"></header>
+
+<main id="conteudo">
+    <section class="landing-heroi">
+        <div class="pagina">
+            <div>
+                <p style="text-transform:uppercase;font-weight:700;letter-spacing:.08em;color:var(--amarelo)">Para transportadoras e empresas de entrega urbana</p>
+                <h1>Descubra onde sua frota fica em <em>ponto morto</em>.</h1>
+                <p><strong>Todo minuto parado tem endereço.</strong> O Ponto Morto mede quanto tempo motoristas e motoboys
+                    ficam parados em cada ponto do roteiro e mostra, em um painel simples, onde estão os gargalos e quanto eles custam.</p>
+                <div class="acoes" style="margin-top:20px">
+                    <a class="botao" href="#teste-gratis">Quero testar grátis por 30 dias</a>
+                    <a class="botao botao-secundario" th:href="@{/login}">Já tenho acesso</a>
+                </div>
+            </div>
+            <div class="placa" role="img" aria-label="Exemplo: 161 minutos parados em 3 roteiros de um único dia">
+                <div class="placa-legenda">Em um único dia, 3 roteiros de exemplo somaram</div>
+                <div class="placa-numero">161 min</div>
+                <div class="placa-legenda">parados. Quase 2 h 40 min que ninguém via.</div>
+            </div>
+        </div>
+    </section>
+    <div class="faixa-estrada" aria-hidden="true"></div>
+
+    <div class="pagina">
+        <th:block th:replace="~{fragmentos/base :: avisos}"></th:block>
+
+        <section class="secao" aria-labelledby="t-problema">
+            <h2 id="t-problema">O problema</h2>
+            <div class="grade">
+                <div class="cartao"><h3>Tempo parado invisível</h3><p>Você sabe a que horas o entregador saiu e voltou, mas não sabe onde ele ficou esperando no meio do caminho.</p></div>
+                <div class="cartao"><h3>Prazos no escuro</h3><p>Sem registro, não dá para mostrar ao cliente que a doca dele segura seu motorista por 50 minutos e renegociar o prazo.</p></div>
+                <div class="cartao"><h3>Custo real desconhecido</h3><p>Combustível, km rodado e horas paradas não aparecem juntos. O preço da rota vira chute.</p></div>
+            </div>
+        </section>
+
+        <section class="secao" aria-labelledby="t-como">
+            <h2 id="t-como">Como funciona, em 3 passos</h2>
+            <ol class="passos">
+                <li><h3>Monte o roteiro com os pedidos</h3><p>Cadastre os pedidos do dia. O sistema encontra o endereço no mapa e junta pedidos do mesmo endereço em um único ponto.</p></li>
+                <li><h3>O motorista toca “Cheguei” e “Saí”</h3><p>No celular, dois botões grandes gravam o horário de chegada e saída em cada ponto. O ponto de partida não conta.</p></li>
+                <li><h3>Veja os gargalos no painel</h3><p>Tempo parado por dia, por mês e por período, ranking dos endereços que mais seguram sua equipe e custo estimado de cada rota.</p></li>
+            </ol>
+        </section>
+
+        <section class="secao" aria-labelledby="t-numeros">
+            <h2 id="t-numeros">Benefícios em números</h2>
+            <p class="muted">Calculado com os roteiros A, B e C de exemplo (jornada padrão de 8 horas).</p>
+            <div class="numeros">
+                <div><strong>15,6%</strong>da jornada do roteiro A foi tempo parado: 75 minutos em 3 entregas.</div>
+                <div><strong>31%</strong>de todo o tempo parado dos 3 roteiros aconteceu em um único endereço (Av. João César, 50 min).</div>
+                <div><strong>54 min</strong>parados, em média, por roteiro, sem contar o ponto de partida.</div>
+                <div><strong>1 toque</strong>por evento: o motorista registra chegada e saída sem digitar nada.</div>
+            </div>
+        </section>
+
+        <section class="secao" id="teste-gratis" aria-labelledby="t-teste">
+            <div class="cta">
+                <h2 id="t-teste">Teste grátis por 30 dias</h2>
+                <p>Sem cartão de crédito. Mandamos o acesso em até 1 dia útil.</p>
+                <form th:action="@{/teste-gratis}" method="post" class="formulario">
+                    <div class="campo"><label for="t-nome">Seu nome</label><input id="t-nome" name="nome" type="text" required autocomplete="name"></div>
+                    <div class="campo"><label for="t-empresa">Empresa</label><input id="t-empresa" name="empresa" type="text" required autocomplete="organization"></div>
+                    <div class="campo"><label for="t-email">E-mail</label><input id="t-email" name="email" type="email" required autocomplete="email"></div>
+                    <div class="campo"><label for="t-tel">Telefone (opcional)</label><input id="t-tel" name="telefone" type="tel" autocomplete="tel"></div>
+                    <div class="campo"><label for="t-frota">Quantos motoristas? (opcional)</label><input id="t-frota" name="tamanhoFrota" type="number" min="1" max="10000"></div>
+                    <label class="checagem largo"><input type="checkbox" name="consentimento" value="true" required>
+                        <span>Concordo que o Ponto Morto use estes dados só para falar comigo sobre o teste grátis.</span></label>
+                    <div class="largo"><button class="botao" type="submit">Quero meu teste grátis</button></div>
+                </form>
+            </div>
+        </section>
+    </div>
+</main>
+<footer th:replace="~{fragmentos/base :: rodape}"></footer>
+</body>
+</html>

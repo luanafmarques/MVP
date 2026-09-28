@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/base :: head(${form.id == null} ? 'Novo pedido' : 'Editar pedido')}"></head>
+<body>
+<header th:replace="~{fragmentos/base :: topo('pedidos')}"></header>
+<main id="conteudo" class="pagina">
+    <th:block th:replace="~{fragmentos/base :: avisos}"></th:block>
+    <div class="cabecalho-pagina">
+        <div>
+            <h1 th:text="${form.id == null} ? 'Novo pedido' : 'Pedido ' + ${form.numero}">Pedido</h1>
+            <p>O sistema encontra o endereço no mapa (latitude e longitude). Pedidos do mesmo endereço viram um único ponto no roteiro.</p>
+        </div>
+    </div>
+    <div class="aviso aviso-info" th:if="${situacao != null and situacao.name() != 'PENDENTE'}">
+        Este pedido já está em um roteiro: endereço e data não podem mudar.
+    </div>
+    <form class="cartao" th:action="@{/pedidos}" th:object="${form}" method="post">
+        <input type="hidden" th:field="*{id}">
+        <div class="formulario">
+            <div class="campo"><label for="numero">Número do pedido</label><input id="numero" type="text" th:field="*{numero}" required maxlength="30" th:readonly="${form.id != null}"></div>
+            <div class="campo"><label for="cliente">Cliente</label><input id="cliente" type="text" th:field="*{cliente}" required maxlength="120"></div>
+            <div class="campo"><label for="dataPrevista">Data prevista</label><input id="dataPrevista" type="date" th:field="*{dataPrevista}" required></div>
+            <div class="campo" th:if="${usuario.admin}"><label for="gerenteId">Equipe (gerente)</label>
+                <select id="gerenteId" th:field="*{gerenteId}">
+                    <option value="">Sem equipe</option>
+                    <option th:each="g : ${gerentes}" th:value="${g.id}" th:text="${g.nome}">Gerente</option>
+                </select></div>
+            <div class="campo largo"><label for="enderecoEntrega">Endereço de entrega</label>
+                <input id="enderecoEntrega" type="text" th:field="*{enderecoEntrega}" required maxlength="255" placeholder="Rua, número - bairro, cidade/UF"></div>
+            <div th:replace="~{fragmentos/geo :: coordenadas('enderecoEntrega')}"></div>
+            <div class="campo largo"><label for="observacao">Observação</label><textarea id="observacao" th:field="*{observacao}" maxlength="500"></textarea></div>
+        </div>
+        <div class="acoes" style="margin-top:16px">
+            <button class="botao" type="submit">Salvar pedido</button>
+            <a class="botao botao-secundario" th:href="@{/pedidos}">Cancelar</a>
+        </div>
+    </form>
+</main>
+<footer th:replace="~{fragmentos/base :: rodape}"></footer>
+<link rel="stylesheet" th:href="@{/webjars/leaflet/dist/leaflet.css}">
+<script th:src="@{/webjars/leaflet/dist/leaflet.js}"></script>
+<script th:src="@{/js/mapa.js}"></script>
+</body>
+</html>

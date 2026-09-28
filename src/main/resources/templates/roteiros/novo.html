@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/base :: head('Montar roteiro')}"></head>
+<body>
+<header th:replace="~{fragmentos/base :: topo('roteiros')}"></header>
+<main id="conteudo" class="pagina">
+    <th:block th:replace="~{fragmentos/base :: avisos}"></th:block>
+    <div class="cabecalho-pagina">
+        <div>
+            <h1>Montar roteiro a partir dos pedidos</h1>
+            <p>Escolha o motorista, a data e os pedidos do dia. Cada endereço vira um ponto, na ordem da lista;
+                pedidos no mesmo endereço ficam no mesmo ponto. Depois você pode reordenar.</p>
+        </div>
+    </div>
+
+    <form class="filtros" method="get" th:action="@{/roteiros/novo}">
+        <div class="campo"><label for="data-busca">Data do roteiro</label><input id="data-busca" type="date" name="data" th:value="${data}"></div>
+        <input type="hidden" name="motoristaId" th:value="${motoristaId}">
+        <button class="botao botao-secundario" type="submit">Ver pedidos dessa data</button>
+    </form>
+
+    <form th:action="@{/roteiros}" method="post">
+        <input type="hidden" name="data" th:value="${data}">
+        <div class="cartao">
+            <div class="formulario">
+                <div class="campo">
+                    <label for="motorista">Motorista</label>
+                    <select id="motorista" name="motoristaId" required>
+                        <option value="">Escolha...</option>
+                        <option th:each="m : ${motoristas}" th:value="${m.id}" th:text="${m.nome}" th:selected="${m.id == motoristaId}">Nome</option>
+                    </select>
+                </div>
+                <div class="campo">
+                    <label for="partida">Ponto de partida (não conta tempo parado)</label>
+                    <select id="partida" name="localPartidaId">
+                        <option value="">Sem partida cadastrada</option>
+                        <option th:each="l, s : ${locais}" th:value="${l.id}" th:text="${l.nome}" th:selected="${s.first}">Base</option>
+                    </select>
+                </div>
+                <div class="campo">
+                    <span class="rotulo">Data</span>
+                    <strong th:text="${#temporals.format(data, 'EEEE, dd/MM/yyyy')}">data</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="cartao">
+            <div class="cartao-titulo">
+                <h2 th:text="'Pedidos aguardando roteiro (' + ${pedidos.size()} + ')'">Pedidos</h2>
+                <a class="botao botao-secundario botao-pequeno" th:href="@{/pedidos/novo}">Cadastrar pedido</a>
+            </div>
+            <div class="tabela-rolagem">
+                <table>
+                    <thead><tr><th><span class="sr-only">Incluir</span></th><th>Pedido</th><th>Cliente</th><th>Endereço de entrega</th><th>Coordenadas</th><th>Observação</th></tr></thead>
+                    <tbody>
+                    <tr th:if="${#lists.isEmpty(pedidos)}"><td colspan="6" class="vazio">Nenhum pedido pendente para essa data.</td></tr>
+                    <tr th:each="p : ${pedidos}">
+                        <td><input type="checkbox" name="pedidoIds" th:value="${p.id}" th:id="'pe-' + ${p.id}" checked
+                                   style="width:20px;height:20px"></td>
+                        <td><label th:for="'pe-' + ${p.id}" th:text="${p.numero}">PM-1</label></td>
+                        <td th:text="${p.cliente}">Cliente</td>
+                        <td th:text="${p.enderecoEntrega}">Endereço</td>
+                        <td class="pequeno">
+                            <span th:if="${p.temCoordenadas()}" th:text="${p.latitude} + ', ' + ${p.longitude}">-19.9, -43.9</span>
+                            <span th:unless="${p.temCoordenadas()}" class="selo selo-alerta">sem coordenadas</span>
+                        </td>
+                        <td class="pequeno" th:text="${p.observacao}">obs</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <button class="botao" type="submit">Montar roteiro</button>
+    </form>
+</main>
+<footer th:replace="~{fragmentos/base :: rodape}"></footer>
+</body>
+</html>

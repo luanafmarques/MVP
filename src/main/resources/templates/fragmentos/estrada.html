@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- Roteiro desenhado como uma estrada horizontal: pontos em ordem, área do círculo proporcional ao tempo parado. -->
+<div th:fragment="estrada(e)" class="estrada-bloco">
+    <div class="estrada" role="img" th:attr="aria-label=${e.descricaoAcessivel()}">
+        <ol class="estrada-trilho" aria-hidden="true">
+            <li th:each="m : ${e.marcos}" class="marco"
+                th:classappend="${'marco-' + m.tipo} + ${m.atual ? ' marco-atual' : ''}">
+                <div class="marco-alvo"><span class="marco-ponto" th:style="'--d:' + ${m.diametro} + 'px'"
+                        th:title="${m.endereco}"></span></div>
+                <div class="marco-tempo">
+                    <span th:text="${m.ordem}">1</span> ·
+                    <span th:if="${m.tipo == 'partida'}">partida</span>
+                    <span th:if="${m.tipo == 'parada'}" th:text="${m.minutos} + ' min'">15 min</span>
+                    <span th:if="${m.tipo == 'no-local'}">no local</span>
+                    <span th:if="${m.tipo == 'pendente'}">a visitar</span>
+                    <span th:if="${m.acimaDoMaximo}" title="Acima do tempo máximo por parada">⚠</span>
+                </div>
+                <div class="marco-endereco" th:text="${m.enderecoCurto}">Rua Peru, 55</div>
+                <div class="marco-horario" th:if="${m.chegada != null or m.saida != null}"
+                     th:text="${(m.chegada ?: '--:--') + ' → ' + (m.saida ?: '--:--')}">08:25 → 08:40</div>
+            </li>
+        </ol>
+    </div>
+    <div class="estrada-legenda">
+        <span><i class="l-partida"></i> partida (não conta tempo parado)</span>
+        <span><i class="l-parada"></i> parada: quanto maior o círculo, mais tempo parado</span>
+        <span><i class="l-pendente"></i> ainda não visitado</span>
+    </div>
+</div>
+
+<!-- Lista de estradas de um dia (carregada pelo painel no recorte "Dia"). -->
+<div th:fragment="lista">
+    <p class="vazio" th:if="${#lists.isEmpty(estradas)}">Nenhum roteiro com coleta nesse dia.</p>
+    <div class="cartao" th:each="e : ${estradas}">
+        <div class="cartao-titulo">
+            <h3><a th:href="@{/roteiros/{id}(id=${e.roteiroId})}" th:text="${e.motorista}">Motorista</a></h3>
+            <span class="selo selo-parado" th:text="${e.totalMin} + ' min parado'">75 min parado</span>
+        </div>
+        <div th:replace="~{fragmentos/estrada :: estrada(${e})}"></div>
+    </div>
+</div>
+
+</body>
+</html>

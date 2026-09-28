@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/base :: head('Painel')}"></head>
+<body>
+<header th:replace="~{fragmentos/base :: topo('painel')}"></header>
+<main id="conteudo" class="pagina">
+    <div class="cabecalho-pagina">
+        <div>
+            <h1>Painel de tempo parado</h1>
+            <p>Quanto tempo a equipe ficou parada, onde e quanto custou. O ponto de partida não conta.
+                Base do percentual: jornada de <strong th:text="${#numbers.formatDecimal(jornada, 1, 'POINT', 0, 'COMMA')} + ' h'">8 h</strong> por roteiro.</p>
+        </div>
+        <div class="acoes">
+            <a class="botao botao-secundario" th:href="@{/historico}">Ver histórico detalhado</a>
+        </div>
+    </div>
+
+    <div class="abas" role="tablist" aria-label="Recorte do painel">
+        <button type="button" role="tab" id="aba-dia" aria-controls="painel-conteudo" aria-selected="true" data-aba="dia">Dia</button>
+        <button type="button" role="tab" id="aba-mes" aria-controls="painel-conteudo" aria-selected="false" data-aba="mes" tabindex="-1">Mês</button>
+        <button type="button" role="tab" id="aba-periodo" aria-controls="painel-conteudo" aria-selected="false" data-aba="periodo" tabindex="-1">Período</button>
+    </div>
+
+    <!-- Uma linha de filtros acima de tudo o que ela afeta -->
+    <form class="filtros" id="filtros" onsubmit="return false">
+        <div class="campo" data-filtro="dia">
+            <label for="f-data">Dia</label>
+            <input id="f-data" type="date" th:value="${diaPadrao}">
+        </div>
+        <div class="campo" data-filtro="mes" hidden>
+            <label for="f-mes">Mês</label>
+            <input id="f-mes" type="month" th:value="${mesPadrao}">
+        </div>
+        <div class="campo" data-filtro="periodo" hidden>
+            <label for="f-inicio">De</label>
+            <input id="f-inicio" type="date" th:value="${inicioPadrao}">
+        </div>
+        <div class="campo" data-filtro="periodo" hidden>
+            <label for="f-fim">Até (máx. 12 meses)</label>
+            <input id="f-fim" type="date" th:value="${fimPadrao}">
+        </div>
+        <div class="campo">
+            <label for="f-motorista">Motorista</label>
+            <select id="f-motorista">
+                <option value="">Toda a equipe</option>
+                <option th:each="m : ${motoristas}" th:value="${m.id}" th:text="${m.nome}">Nome</option>
+            </select>
+        </div>
+    </form>
+
+    <div id="painel-erro" class="aviso aviso-erro" role="alert" hidden></div>
+
+    <section id="painel-conteudo" role="tabpanel" aria-labelledby="aba-dia" aria-live="polite">
+        <h2 id="recorte-titulo" class="sr-only">Recorte</h2>
+        <div class="kpis" id="kpis">
+            <div class="kpi kpi-destaque"><div class="kpi-rotulo">Tempo parado total</div><div class="kpi-valor" data-kpi="total">—</div><div class="kpi-detalhe" data-kpi="roteiros"></div></div>
+            <div class="kpi"><div class="kpi-rotulo">Média por roteiro</div><div class="kpi-valor" data-kpi="media">—</div><div class="kpi-detalhe">sem o ponto de partida</div></div>
+            <div class="kpi"><div class="kpi-rotulo">% da jornada parada</div><div class="kpi-valor" data-kpi="percentual">—</div><div class="kpi-detalhe" data-kpi="jornada"></div></div>
+            <div class="kpi"><div class="kpi-rotulo">Custo estimado</div><div class="kpi-valor" data-kpi="custo">—</div><div class="kpi-detalhe">combustível + custo por km</div></div>
+            <div class="kpi"><div class="kpi-rotulo">Distância real × estimada</div><div class="kpi-valor" data-kpi="distancia">—</div><div class="kpi-detalhe" data-kpi="diferenca"></div></div>
+        </div>
+
+        <div class="grade-2">
+            <div class="cartao">
+                <div class="cartao-titulo">
+                    <h3 id="grafico-titulo">Tempo parado</h3>
+                    <span class="tempo-consulta" id="tempo-consulta"></span>
+                </div>
+                <p class="muted pequeno" id="grafico-subtitulo"></p>
+                <div class="grafico" id="grafico-caixa"><canvas id="grafico" role="img" aria-label="Gráfico de tempo parado"></canvas></div>
+                <details class="tabela-grafico">
+                    <summary>Ver os números em tabela</summary>
+                    <div class="tabela-rolagem"><table id="tabela-serie"><thead></thead><tbody></tbody></table></div>
+                </details>
+            </div>
+            <div class="cartao">
+                <h3>Endereços com mais tempo parado</h3>
+                <p class="muted pequeno">Soma das paradas no recorte escolhido.</p>
+                <div class="tabela-rolagem">
+                    <table id="tabela-ranking">
+                        <thead><tr><th>#</th><th>Endereço</th><th class="numero">Parado</th><th class="numero">Paradas</th><th class="numero">Maior</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Só no recorte Dia: paradas com endereço e horários, e as estradas de cada roteiro -->
+        <div data-so="dia">
+            <div class="cartao">
+                <h3>Paradas do dia</h3>
+                <div class="tabela-rolagem">
+                    <table id="tabela-paradas">
+                        <thead><tr><th>Motorista</th><th>Ordem</th><th>Endereço</th><th>Chegada</th><th>Saída</th><th class="numero">Parado</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <h3>Trajetos do dia</h3>
+            <div id="estradas"></div>
+        </div>
+
+        <!-- Só no recorte Período: comparação entre motoristas -->
+        <div class="cartao" data-so="periodo" hidden>
+            <h3>Por motorista</h3>
+            <div class="tabela-rolagem">
+                <table id="tabela-motoristas">
+                    <thead><tr><th>Motorista</th><th class="numero">Roteiros</th><th class="numero">Parado</th><th class="numero">Média/roteiro</th><th class="numero">% jornada</th><th class="numero">Custo</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</main>
+<footer th:replace="~{fragmentos/base :: rodape}"></footer>
+<script th:src="@{/webjars/chart.js/dist/chart.umd.js}"></script>
+<script th:src="@{/js/painel.js}" th:attr="data-base=@{/}"></script>
+</body>
+</html>
