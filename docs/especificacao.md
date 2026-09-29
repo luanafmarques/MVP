@@ -3,6 +3,8 @@
 Engenharia de Software II · PUC Minas · Prof. Sandro Laudares
 2º trabalho — 1ª parte: Projeto Preliminar
 
+**Equipe:** Luana Ferreira Marques e Manuela Edmundo Moss
+
 > **Ponto Morto**: o carro em ponto morto está parado. O sistema mostra onde e por quanto tempo motoristas e motoboys ficam parados durante o roteiro do dia.
 
 ---

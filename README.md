@@ -4,6 +4,8 @@
 
 O Ponto Morto mostra onde e por quanto tempo motoristas e motoboys ficam parados em cada ponto do roteiro do dia, e quanto isso custa. É o MVP do 2º trabalho de Engenharia de Software II (PUC Minas, prof. Sandro Laudares).
 
+**Equipe:** Luana Ferreira Marques e Manuela Edmundo Moss.
+
 - Painel com gráficos de tempo parado por **dia**, **mês** e **período**, ranking de endereços, % da jornada e custo estimado.
 - **Entrada de pedidos** com geocodificação (Nominatim/OpenStreetMap). O roteiro é montado a partir dos pedidos do dia.
 - **Tela do motorista** para celular, com os botões grandes **Cheguei** e **Saí**.
