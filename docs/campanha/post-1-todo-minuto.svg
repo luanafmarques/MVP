@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1080" width="1080" height="1080" role="img" aria-labelledby="t1">
+  <title id="t1">Ponto Morto: todo minuto parado tem endereço</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700&amp;family=Barlow:wght@500;700&amp;display=swap');
+    .placa { font-family: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif; font-weight: 700; }
+    .texto { font-family: 'Barlow', Arial, sans-serif; }
+  </style>
+  <rect width="1080" height="1080" fill="#2B2F33"/>
+  <!-- faixa amarela tracejada no topo -->
+  <line x1="0" y1="40" x2="1080" y2="40" stroke="#F5C200" stroke-width="10" stroke-dasharray="70 40"/>
+
+  <!-- logo -->
+  <g transform="translate(80 110)">
+    <rect x="8" y="8" width="48" height="48" rx="7" transform="rotate(45 32 32)" fill="#F5C200" stroke="#1F2326" stroke-width="3"/>
+    <path d="M20 22v20M32 22v20M44 22v20M20 32h24" stroke="#1F2326" stroke-width="4" stroke-linecap="round" fill="none"/>
+    <circle cx="32" cy="32" r="6" fill="#1F2326" stroke="#F5C200" stroke-width="2"/>
+    <text x="90" y="46" class="placa" font-size="44" fill="#F1F2F0" letter-spacing="3">PONTO MORTO</text>
+  </g>
+
+  <text x="80" y="330" class="placa" font-size="118" fill="#F1F2F0">TODO MINUTO</text>
+  <text x="80" y="450" class="placa" font-size="118" fill="#F1F2F0">PARADO TEM</text>
+  <text x="80" y="570" class="placa" font-size="118" fill="#F5C200">ENDEREÇO.</text>
+
+  <!-- estrada com as paradas do roteiro A: tamanho = tempo parado -->
+  <rect x="60" y="700" width="960" height="56" rx="28" fill="#15181B"/>
+  <line x1="90" y1="728" x2="990" y2="728" stroke="#F5C200" stroke-width="5" stroke-dasharray="34 26"/>
+  <circle cx="150" cy="728" r="16" fill="#17803F" stroke="#2B2F33" stroke-width="5"/>
+  <circle cx="390" cy="728" r="34" fill="#F5C200" stroke="#2B2F33" stroke-width="5"/>
+  <circle cx="620" cy="728" r="28" fill="#F5C200" stroke="#2B2F33" stroke-width="5"/>
+  <circle cx="880" cy="728" r="62" fill="#F5C200" stroke="#2B2F33" stroke-width="5"/>
+  <g class="texto" fill="#F1F2F0" text-anchor="middle" font-size="30">
+    <text x="150" y="830" font-weight="700">partida</text>
+    <text x="390" y="830" font-weight="700">15 min</text>
+    <text x="620" y="830" font-weight="700">10 min</text>
+    <text x="880" y="830" font-weight="700">50 min</text>
+    <text x="390" y="870" font-size="24" fill="#BCC2C7">Rua Peru, 55</text>
+    <text x="620" y="870" font-size="24" fill="#BCC2C7">Rua X, 5</text>
+    <text x="880" y="870" font-size="24" fill="#BCC2C7">Av. João César</text>
+  </g>
+
+  <text x="80" y="990" class="texto" font-size="34" fill="#F1F2F0">Veja onde sua equipe de entrega fica parada.</text>
+  <text x="80" y="1036" class="texto" font-size="28" fill="#F5C200" font-weight="700">Teste grátis por 30 dias · link na bio</text>
+</svg>

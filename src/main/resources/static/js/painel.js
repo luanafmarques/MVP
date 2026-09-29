@@ -96,10 +96,30 @@
     texto('[data-kpi="percentual"]', decimal1.format(ind.percentualJornada) + '%');
     texto('[data-kpi="jornada"]', 'de ' + numero.format(ind.roteiros) + ' × ' + decimal1.format(ind.jornadaHoras) + ' h de jornada');
     texto('[data-kpi="custo"]', dinheiro.format(ind.custoTotal));
-    texto('[data-kpi="distancia"]', decimal1.format(ind.distanciaRealKm) + ' km');
+    // Seção 2 do enunciado: custo por km percorrido e consumo km/litro (real quando há hodômetro, senão estimado)
+    if (ind.custoPorKm != null) {
+      texto('[data-kpi="custo-km"]', dinheiro.format(ind.custoPorKm) + '/km');
+      texto('[data-kpi="km-rodado"]', dinheiro.format(ind.custoTotal) + ' ÷ ' + decimal1.format(ind.kmPercorrido) + ' km rodados');
+    } else {
+      texto('[data-kpi="custo-km"]', '—');
+      texto('[data-kpi="km-rodado"]', 'nenhum km neste recorte');
+    }
+    if (ind.kmLitroMedio != null) {
+      texto('[data-kpi="consumo"]', decimal1.format(ind.kmLitroMedio) + ' km/l');
+      texto('[data-kpi="litros"]', '≈ ' + decimal1.format(ind.litros) + ' litros de combustível');
+    } else {
+      texto('[data-kpi="consumo"]', '—');
+      texto('[data-kpi="litros"]', 'nenhum km neste recorte');
+    }
     var dif = Number(ind.diferencaKm);
-    texto('[data-kpi="diferenca"]', 'estimada ' + decimal1.format(ind.distanciaEstimadaKm) + ' km · diferença '
-      + (dif > 0 ? '+' : '') + decimal1.format(dif) + ' km');
+    if (Number(ind.distanciaRealKm) > 0) {
+      texto('[data-kpi="distancia"]', decimal1.format(ind.distanciaRealKm) + ' km');
+      texto('[data-kpi="diferenca"]', 'estimada ' + decimal1.format(ind.distanciaEstimadaKm) + ' km · diferença '
+        + (dif > 0 ? '+' : '') + decimal1.format(dif) + ' km');
+    } else {
+      texto('[data-kpi="distancia"]', '—');
+      texto('[data-kpi="diferenca"]', 'estimada ' + decimal1.format(ind.distanciaEstimadaKm) + ' km · km real ainda não informado');
+    }
     el('tempo-consulta').textContent = 'consulta em ' + numero.format(dados.tempoConsultaMs) + ' ms';
 
     ranking(dados.ranking);
@@ -135,7 +155,10 @@
   function ranking(itens) {
     var num = [null, null, 'numero', 'numero', 'numero'];
     preencher(document.querySelector('#tabela-ranking tbody'), itens.map(function (i) {
-      return linha([i.posicao + 'º', i.endereco, minutos(i.minutos), numero.format(i.paradas), minutos(i.maiorParadaMin)], num);
+      // Endereço curto na coluna estreita ("Rua Peru, 55"); o completo fica no title da célula.
+      var tr = linha([i.posicao + 'º', i.endereco.split(' - ')[0], minutos(i.minutos), numero.format(i.paradas), minutos(i.maiorParadaMin)], num);
+      tr.children[1].title = i.endereco;
+      return tr;
     }), 'Nenhuma parada registrada neste recorte.', 5);
   }
 
@@ -203,7 +226,8 @@
     };
     var eixoCategoria = { grid: { display: false }, border: { color: grade }, ticks: { color: tinta, autoSkip: true, maxRotation: 0 } };
     return {
-      responsive: true, maintainAspectRatio: false, animation: { duration: 250 },
+      // Sem animação: o gráfico aparece já no valor final (também em impressão, captura de tela e movimento reduzido).
+      responsive: true, maintainAspectRatio: false, animation: false,
       indexAxis: horizontal ? 'y' : 'x',
       layout: { padding: { top: 18, right: horizontal ? 64 : 8 } },
       plugins: {
@@ -219,6 +243,10 @@
   }
 
   function desenharGrafico(tipoHorizontal, rotulos, valores, tooltips, altura) {
+    var vazio = !valores.some(function (v) { return v > 0; });
+    el('grafico-vazio').hidden = !vazio;
+    el('grafico-caixa').hidden = vazio;
+    if (vazio) { if (grafico) { grafico.destroy(); grafico = null; } return; }
     el('grafico-caixa').style.height = altura + 'px';
     var dataset = {
       data: valores, backgroundColor: cor('--grafico-parado'), hoverBackgroundColor: cor('--amarelo'),

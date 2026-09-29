@@ -1,0 +1,31 @@
+@startuml robustez-04-consultar-historico
+!pragma layout smetana
+title Robustez - UC05 Consultar histórico
+left to right direction
+skinparam shadowing false
+skinparam defaultFontName Arial
+
+actor Gerente
+boundary "Tela Histórico\n(período, motorista,\nsó paradas)" as Tela
+boundary "Arquivo CSV / PDF" as Arquivo
+control "Controle do histórico\n(HistoricoService)" as Historico
+control "Filtrar pela equipe\n(RNF04)" as Escopo
+control "Paginar resultados" as Paginar
+control "Gerar relatório\n(RelatorioService, RF12)" as Relatorio
+entity Ponto
+entity Roteiro
+entity Motorista
+entity Pedido
+
+Gerente -- Tela
+Gerente -- Arquivo
+Tela -- Historico
+Historico -- Escopo
+Escopo -- Motorista
+Historico -- Paginar
+Paginar -- Ponto
+Ponto -- Roteiro
+Historico -- Relatorio
+Relatorio -- Arquivo
+Relatorio -- Pedido
+@enduml

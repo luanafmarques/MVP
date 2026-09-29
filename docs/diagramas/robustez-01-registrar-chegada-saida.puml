@@ -1,0 +1,39 @@
+@startuml robustez-01-registrar-chegada-saida
+!pragma layout smetana
+title Robustez - UC01 Registrar chegada e saída no ponto
+left to right direction
+skinparam shadowing false
+skinparam defaultFontName Arial
+
+actor Motorista
+boundary "Tela Meu roteiro\n(botões Cheguei / Saí)" as Tela
+boundary "Formulário\nCorrigir horário" as FormCorr
+control "Controle de coleta\n(ColetaService)" as Coleta
+control "Verificar acesso ao\nroteiro do dia (RNF04)" as Acesso
+control "Validar horários\n(saída >= chegada)" as Validar
+control "Calcular tempo parado\n(RN01, RN02, RN03, RF10)" as Calcular
+control "Calcular custo\n(RN07)" as Custo
+control "Registrar auditoria\n(RNF05)" as Auditar
+entity Roteiro
+entity Ponto
+entity Parametro
+entity Auditoria
+
+Motorista -- Tela
+Motorista -- FormCorr
+Tela -- Coleta
+FormCorr -- Coleta
+Coleta -- Acesso
+Acesso -- Roteiro
+Coleta -- Validar
+Validar -- Ponto
+Coleta -- Calcular
+Calcular -- Ponto
+Calcular -- Parametro
+Calcular -- Roteiro
+Coleta -- Custo
+Custo -- Roteiro
+Custo -- Parametro
+Coleta -- Auditar
+Auditar -- Auditoria
+@enduml

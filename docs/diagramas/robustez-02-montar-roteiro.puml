@@ -1,0 +1,44 @@
+@startuml robustez-02-montar-roteiro
+!pragma layout smetana
+title Robustez - UC03 Montar roteiro a partir dos pedidos
+left to right direction
+skinparam shadowing false
+skinparam defaultFontName Arial
+
+actor Gerente
+actor "OSRM" as Osrm <<sistema>>
+boundary "Tela Montar roteiro\n(motorista, data, pedidos)" as Tela
+boundary "Tela Detalhe do roteiro\n(estrada, subir/descer)" as Detalhe
+control "Controle de roteiros\n(RoteiroService)" as Servico
+control "Bloquear duplicidade\n(RN05)" as Rn05
+control "Agrupar pedidos\npor endereço" as Agrupar
+control "Numerar pontos 1, 2, 3...\n(RN06)" as Ordem
+control "Estimar distância\n(OSRM ou Haversine)" as Distancia
+control "Calcular custo\n(RN07 / RF11)" as Custo
+entity Motorista
+entity Pedido
+entity Local as "Ponto cadastrado"
+entity Roteiro
+entity Ponto
+entity Parametro
+
+Gerente -- Tela
+Gerente -- Detalhe
+Tela -- Servico
+Detalhe -- Servico
+Servico -- Rn05
+Rn05 -- Roteiro
+Rn05 -- Motorista
+Servico -- Agrupar
+Agrupar -- Pedido
+Agrupar -- Local
+Agrupar -- Ponto
+Servico -- Ordem
+Ordem -- Ponto
+Servico -- Distancia
+Distancia -- Osrm
+Distancia -- Roteiro
+Servico -- Custo
+Custo -- Parametro
+Custo -- Roteiro
+@enduml

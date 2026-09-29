@@ -1,0 +1,87 @@
+@startuml casos-de-uso
+!pragma layout smetana
+title Ponto Morto - Diagrama de casos de uso
+left to right direction
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam usecase {
+  BackgroundColor #FFF3C4
+  BorderColor #2B2F33
+}
+skinparam actorBorderColor #2B2F33
+skinparam rectangleBorderColor #676F76
+
+actor "Motorista /\nMotoboy" as Motorista
+actor "Gerente /\nCoordenador" as Gerente
+actor "Administrador" as Admin
+actor "Nominatim" as Geo <<sistema>>
+actor "OSRM" as Osrm <<sistema>>
+
+Gerente <|-- Admin
+
+rectangle "Ponto Morto" {
+  rectangle "Acesso" {
+    usecase "UC00 Fazer login" as UC00
+    usecase "Aceitar aviso de\nprivacidade (LGPD)" as UCLGPD
+  }
+  rectangle "Coleta no roteiro" {
+    usecase "UC01 Registrar chegada\ne saída no ponto" as UC01
+    usecase "Informar hodômetro" as UCHOD
+    usecase "Corrigir horário" as UCCORR
+    usecase "Calcular tempo parado" as UCCALC
+    usecase "Registrar auditoria" as UCAUD
+  }
+  rectangle "Gestão da equipe" {
+    usecase "UC02 Cadastrar pedido" as UCPED
+    usecase "UC03 Montar roteiro\na partir dos pedidos" as UC02
+    usecase "Reordenar pontos" as UCORD
+    usecase "Estimar distância" as UCDIST
+    usecase "Geocodificar endereço" as UCGEO
+    usecase "UC04 Visualizar dashboard" as UC03
+    usecase "Calcular indicadores" as UCIND
+    usecase "UC05 Consultar histórico" as UC04
+    usecase "Exportar CSV / PDF" as UCEXP
+    usecase "Cadastrar motorista" as UCMOT
+    usecase "Cadastrar ponto" as UCLOC
+    usecase "Consultar auditoria" as UCVAUD
+  }
+  rectangle "Administração" {
+    usecase "UC06 Parametrizar custos\ne tempo parado" as UC05
+    usecase "Recalcular roteiros\nconcluídos" as UCREC
+    usecase "Cadastrar gerente\ne equipe" as UCGER
+    usecase "Anonimizar / excluir\ndados pessoais" as UCANON
+  }
+}
+
+Motorista --> UC00
+Motorista --> UC01
+Motorista --> UCHOD
+Gerente --> UC00
+Gerente --> UCPED
+Gerente --> UC02
+Gerente --> UC03
+Gerente --> UC04
+Gerente --> UCMOT
+Gerente --> UCLOC
+Gerente --> UCVAUD
+Gerente --> UCCORR
+Admin --> UC05
+Admin --> UCGER
+Admin --> UCANON
+
+UCLGPD .> UC00 : <<extend>>\n1º acesso
+UC01 ..> UCCALC : <<include>>
+UC01 ..> UCAUD : <<include>>
+UCCORR .> UC01 : <<extend>>
+UCCORR ..> UCAUD : <<include>>
+UCPED ..> UCGEO : <<include>>
+UCLOC ..> UCGEO : <<include>>
+UC02 ..> UCDIST : <<include>>
+UCORD .> UC02 : <<extend>>
+UC03 ..> UCIND : <<include>>
+UCEXP .> UC04 : <<extend>>
+UCREC .> UC05 : <<extend>>
+
+UCGEO --> Geo
+UCDIST --> Osrm
+@enduml

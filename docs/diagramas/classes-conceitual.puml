@@ -1,0 +1,128 @@
+@startuml classes-conceitual
+!pragma layout smetana
+title Ponto Morto - Diagrama de classes conceitual (atributos e associações)
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam classAttributeIconSize 0
+hide methods
+hide circle
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #2B2F33
+  HeaderBackgroundColor #FFF3C4
+}
+
+class Usuario {
+  login
+  senhaHash
+  perfil : ADMIN | GERENTE | MOTORISTA
+  ativo
+}
+
+class Gerente {
+  nome
+  telefone
+  email
+}
+
+class Motorista {
+  nome
+  telefone
+  documento
+  anonimizado
+  ativo
+}
+
+class Veiculo {
+  placa
+  tipo
+  modelo
+  rendimentoKmLitro
+}
+
+class Roteiro {
+  data
+  status
+  distanciaEstimadaKm
+  distanciaEstimadaAproximada
+  kmInicial
+  kmFinal
+  distanciaRealKm
+  tempoTotalParado
+  custoEstimado
+}
+
+class Ponto {
+  ordem
+  endereco
+  latitude
+  longitude
+  chegada
+  saida
+  tempoParado
+}
+
+class Pedido {
+  numero
+  cliente
+  enderecoEntrega
+  latitude
+  longitude
+  dataPrevista
+  observacao
+  status
+}
+
+class "Ponto cadastrado" as Local {
+  nome
+  endereco
+  latitude
+  longitude
+}
+
+class Parametro {
+  precoCombustivel
+  kmLitroPadrao
+  custoPorKm
+  jornadaHoras
+  ignorarParadaMenorQueMin
+  tempoMaximoParadaMin
+}
+
+class Auditoria {
+  dataHora
+  usuario
+  acao
+  campo
+  valorAntigo
+  valorNovo
+  motivo
+}
+
+class Consentimento {
+  versaoAviso
+  aceitoEm
+}
+
+Usuario "1" -- "0..1" Gerente : acessa como >
+Usuario "1" -- "0..1" Motorista : acessa como >
+Usuario "1" -- "0..*" Consentimento : aceita >
+Gerente "0..1" -- "0..*" Motorista : equipe >
+Motorista "0..*" -- "0..1" Veiculo : usa >
+Motorista "1" -- "0..*" Roteiro : responsável por >
+Roteiro "1" *-- "1..*" Ponto : {ordenado por ordem}
+Ponto "0..1" -- "0..*" Pedido : atende >
+Ponto "0..*" -- "0..1" Local : copia endereço de >
+Gerente "0..1" -- "0..*" Pedido : cadastra >
+Auditoria "0..*" -- "0..1" Ponto : registra alteração de >
+Parametro "1" .. "0..*" Roteiro : usado no cálculo de >
+
+note bottom of Roteiro
+  RN05: um roteiro por motorista por data.
+  RN06: pontos em ordem 1, 2, 3...
+end note
+note bottom of Ponto
+  RN01: a ordem 1 (partida) não conta tempo parado.
+  RN02: tempo parado = saída - chegada.
+end note
+@enduml

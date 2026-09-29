@@ -8,7 +8,7 @@
         <ol class="estrada-trilho" aria-hidden="true">
             <li th:each="m : ${e.marcos}" class="marco"
                 th:classappend="${'marco-' + m.tipo} + ${m.atual ? ' marco-atual' : ''}">
-                <div class="marco-alvo"><span class="marco-ponto" th:style="'--d:' + ${m.diametro} + 'px'"
+                <div class="marco-alvo" th:attr="data-atual=${usuario != null and usuario.motorista} ? 'você está aqui' : 'ponto atual'"><span class="marco-ponto" th:style="'--d:' + ${m.diametro} + 'px'"
                         th:title="${m.endereco}"></span></div>
                 <div class="marco-tempo">
                     <span th:text="${m.ordem}">1</span> ·

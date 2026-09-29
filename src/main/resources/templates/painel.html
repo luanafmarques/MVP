@@ -57,6 +57,8 @@
             <div class="kpi"><div class="kpi-rotulo">Média por roteiro</div><div class="kpi-valor" data-kpi="media">—</div><div class="kpi-detalhe">sem o ponto de partida</div></div>
             <div class="kpi"><div class="kpi-rotulo">% da jornada parada</div><div class="kpi-valor" data-kpi="percentual">—</div><div class="kpi-detalhe" data-kpi="jornada"></div></div>
             <div class="kpi"><div class="kpi-rotulo">Custo estimado</div><div class="kpi-valor" data-kpi="custo">—</div><div class="kpi-detalhe">combustível + custo por km</div></div>
+            <div class="kpi"><div class="kpi-rotulo">Custo por km rodado</div><div class="kpi-valor" data-kpi="custo-km">—</div><div class="kpi-detalhe" data-kpi="km-rodado"></div></div>
+            <div class="kpi"><div class="kpi-rotulo">Consumo médio</div><div class="kpi-valor" data-kpi="consumo">—</div><div class="kpi-detalhe" data-kpi="litros"></div></div>
             <div class="kpi"><div class="kpi-rotulo">Distância real × estimada</div><div class="kpi-valor" data-kpi="distancia">—</div><div class="kpi-detalhe" data-kpi="diferenca"></div></div>
         </div>
 
@@ -68,6 +70,7 @@
                 </div>
                 <p class="muted pequeno" id="grafico-subtitulo"></p>
                 <div class="grafico" id="grafico-caixa"><canvas id="grafico" role="img" aria-label="Gráfico de tempo parado"></canvas></div>
+                <p class="vazio" id="grafico-vazio" hidden>Nenhuma parada registrada neste recorte.</p>
                 <details class="tabela-grafico">
                     <summary>Ver os números em tabela</summary>
                     <div class="tabela-rolagem"><table id="tabela-serie"><thead></thead><tbody></tbody></table></div>

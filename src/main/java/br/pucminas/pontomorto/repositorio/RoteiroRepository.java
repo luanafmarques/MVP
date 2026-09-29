@@ -73,7 +73,11 @@ public interface RoteiroRepository extends JpaRepository<Roteiro, Long> {
             select new br.pucminas.pontomorto.repositorio.Agregados$TotalPorData(
                    r.data, count(r), sum(r.tempoTotalParadoSeg), sum(r.custoEstimado),
                    sum(r.distanciaEstimadaKm), sum(r.distanciaRealKm),
-                   sum(case when r.distanciaRealKm is not null then r.distanciaEstimadaKm end))
+                   sum(case when r.distanciaRealKm is not null then r.distanciaEstimadaKm end),
+                   sum(coalesce(r.distanciaRealKm, r.distanciaEstimadaKm)),
+                   sum(case when r.kmLitroUsado > 0 then coalesce(r.distanciaRealKm, r.distanciaEstimadaKm) end),
+                   sum(case when r.kmLitroUsado > 0
+                            then coalesce(r.distanciaRealKm, r.distanciaEstimadaKm) / r.kmLitroUsado end))
               from Roteiro r
              where r.data between :inicio and :fim
                and r.status <> br.pucminas.pontomorto.dominio.StatusRoteiro.PLANEJADO
@@ -90,7 +94,11 @@ public interface RoteiroRepository extends JpaRepository<Roteiro, Long> {
             select new br.pucminas.pontomorto.repositorio.Agregados$TotalPorMes(
                    year(r.data), month(r.data), count(r), sum(r.tempoTotalParadoSeg), sum(r.custoEstimado),
                    sum(r.distanciaEstimadaKm), sum(r.distanciaRealKm),
-                   sum(case when r.distanciaRealKm is not null then r.distanciaEstimadaKm end))
+                   sum(case when r.distanciaRealKm is not null then r.distanciaEstimadaKm end),
+                   sum(coalesce(r.distanciaRealKm, r.distanciaEstimadaKm)),
+                   sum(case when r.kmLitroUsado > 0 then coalesce(r.distanciaRealKm, r.distanciaEstimadaKm) end),
+                   sum(case when r.kmLitroUsado > 0
+                            then coalesce(r.distanciaRealKm, r.distanciaEstimadaKm) / r.kmLitroUsado end))
               from Roteiro r
              where r.data between :inicio and :fim
                and r.status <> br.pucminas.pontomorto.dominio.StatusRoteiro.PLANEJADO

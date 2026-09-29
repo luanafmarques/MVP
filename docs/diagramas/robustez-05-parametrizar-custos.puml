@@ -1,0 +1,30 @@
+@startuml robustez-05-parametrizar-custos
+!pragma layout smetana
+title Robustez - UC06 Parametrizar custos e tempo parado
+left to right direction
+skinparam shadowing false
+skinparam defaultFontName Arial
+
+actor Administrador
+boundary "Tela Parâmetros\n(combustível, km/l, custo/km,\njornada, limites de parada)" as Tela
+control "Controle de parâmetros\n(ParametroService)" as Servico
+control "Validar valores\n(km/l > 0, jornada 1-24 h...)" as Validar
+control "Registrar auditoria\n(RNF05)" as Auditar
+control "Recalcular roteiros\n(abertos ou todos)" as Recalcular
+control "Calcular tempo e custo\n(RN01-RN04, RN07)" as Calcular
+entity Parametro
+entity Roteiro
+entity Ponto
+entity Auditoria
+
+Administrador -- Tela
+Tela -- Servico
+Servico -- Validar
+Servico -- Parametro
+Servico -- Auditar
+Auditar -- Auditoria
+Servico -- Recalcular
+Recalcular -- Calcular
+Calcular -- Roteiro
+Calcular -- Ponto
+@enduml

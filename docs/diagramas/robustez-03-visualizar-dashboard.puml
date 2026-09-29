@@ -1,0 +1,33 @@
+@startuml robustez-03-visualizar-dashboard
+!pragma layout smetana
+title Robustez - UC04 Visualizar dashboard (dia, mês e período)
+left to right direction
+skinparam shadowing false
+skinparam defaultFontName Arial
+
+actor Gerente
+boundary "Tela Painel\n(abas Dia / Mês / Período,\nfiltro de motorista)" as Tela
+boundary "Gráfico e tabelas\n(Chart.js, ranking,\nestradas do dia)" as Graficos
+control "Controle do painel\n(DashboardService)" as Painel
+control "Filtrar pela equipe\ndo gerente (RNF04)" as Escopo
+control "Somar tempos no banco\n(consultas agregadas, RNF03)" as Agregar
+control "Calcular indicadores\n(% jornada RN04, média, custo)" as Indicadores
+control "Ranking de endereços" as Ranking
+entity Roteiro
+entity Ponto
+entity Motorista
+entity Parametro
+
+Gerente -- Tela
+Tela -- Painel
+Painel -- Graficos
+Painel -- Escopo
+Escopo -- Motorista
+Painel -- Agregar
+Agregar -- Roteiro
+Painel -- Ranking
+Ranking -- Ponto
+Painel -- Indicadores
+Indicadores -- Parametro
+Indicadores -- Roteiro
+@enduml

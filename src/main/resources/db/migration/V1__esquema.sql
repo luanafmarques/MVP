@@ -114,9 +114,10 @@ CREATE TABLE ponto (
     CONSTRAINT ck_ponto_ordem CHECK (ordem >= 1),
     -- Validação: a saída não pode ser antes da chegada.
     CONSTRAINT ck_ponto_saida_apos_chegada CHECK (saida IS NULL OR chegada IS NULL OR saida >= chegada),
-    -- Todo tempo parado está ligado a uma chegada e uma saída registradas (a partida vale sempre zero).
+    -- Todo tempo parado maior que zero está ligado a uma chegada e uma saída registradas
+    -- (a partida vale sempre zero, mesmo sem horários).
     CONSTRAINT ck_ponto_tempo_com_horarios CHECK (
-        tempo_parado_seg IS NULL OR ordem = 1 OR (chegada IS NOT NULL AND saida IS NOT NULL))
+        tempo_parado_seg IS NULL OR tempo_parado_seg = 0 OR (chegada IS NOT NULL AND saida IS NOT NULL))
 );
 
 -- Pedidos (entrada de pedidos). Vários pedidos podem cair no mesmo ponto (mesmo endereço).

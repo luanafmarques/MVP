@@ -9,16 +9,21 @@ public final class Agregados {
     private Agregados() {
     }
 
-    /** Totais de roteiros agrupados por data. */
+    /**
+     * Totais de roteiros agrupados por data. {@code kmPercorrido} usa a distância real quando existe
+     * (senão a estimada), igual ao custo; {@code litros} = km ÷ km/l usado em cada roteiro.
+     */
     public record TotalPorData(LocalDate data, Long roteiros, Long segundosParados, BigDecimal custo,
                                BigDecimal distanciaEstimada, BigDecimal distanciaReal,
-                               BigDecimal distanciaEstimadaComReal) {
+                               BigDecimal distanciaEstimadaComReal, BigDecimal kmPercorrido,
+                               BigDecimal kmComConsumo, BigDecimal litros) {
     }
 
-    /** Totais de roteiros agrupados por mês. */
+    /** Totais de roteiros agrupados por mês (mesmos campos de {@link TotalPorData}). */
     public record TotalPorMes(Integer ano, Integer mes, Long roteiros, Long segundosParados, BigDecimal custo,
                               BigDecimal distanciaEstimada, BigDecimal distanciaReal,
-                              BigDecimal distanciaEstimadaComReal) {
+                              BigDecimal distanciaEstimadaComReal, BigDecimal kmPercorrido,
+                              BigDecimal kmComConsumo, BigDecimal litros) {
     }
 
     /** Totais de roteiros agrupados por motorista. */

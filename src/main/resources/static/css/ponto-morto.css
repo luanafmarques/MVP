@@ -116,6 +116,8 @@ img, svg { max-width: 100%; }
 .pequeno { font-size: .875rem; }
 .numero { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+/* O atributo hidden sempre esconde, mesmo em elementos com display próprio (.campo, .aviso...). */
+[hidden] { display: none !important; }
 
 /* ---------- Topo (faixa de asfalto com a linha amarela tracejada) ---------- */
 .topo {
@@ -173,7 +175,7 @@ img, svg { max-width: 100%; }
 .cartao-titulo { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
 .cartao-titulo h2, .cartao-titulo h3 { margin: 0; }
 .grade { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
-.grade-2 { display: grid; gap: 16px; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+.grade-2 { display: grid; gap: 16px; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); align-items: start; }
 @media (max-width: 900px) { .grade-2 { grid-template-columns: minmax(0, 1fr); } }
 
 /* ---------- Avisos ---------- */
@@ -284,7 +286,7 @@ details.tabela-grafico summary { cursor: pointer; font-weight: 600; color: var(-
   background: repeating-linear-gradient(90deg, var(--amarelo) 0 16px, transparent 16px 30px);
 }
 .marco { position: relative; z-index: 1; width: 128px; flex: 0 0 128px; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 4px; }
-.marco-alvo { height: 88px; display: flex; align-items: center; justify-content: center; }
+.marco-alvo { position: relative; width: 100%; height: 88px; display: flex; align-items: center; justify-content: center; }
 .marco-ponto {
   width: var(--d, 20px); height: var(--d, 20px); border-radius: 50%;
   background: var(--amarelo); border: 3px solid var(--superficie); box-shadow: 0 0 0 1px #1f2326;
@@ -293,7 +295,8 @@ details.tabela-grafico summary { cursor: pointer; font-weight: 600; color: var(-
 .marco-pendente .marco-ponto { background: var(--superficie); border: 3px dashed var(--linha-forte); box-shadow: none; }
 .marco-no-local .marco-ponto { background: var(--amarelo-fundo); border: 3px solid var(--amarelo); animation: pulsar 1.6s ease-in-out infinite; }
 .marco-atual .marco-alvo::after {
-  content: "você está aqui"; position: absolute; top: -2px; font-size: .7rem; font-weight: 700; text-transform: uppercase;
+  content: attr(data-atual); position: absolute; top: 0; left: 50%; transform: translateX(-50%); white-space: nowrap;
+  font-size: .7rem; font-weight: 700; text-transform: uppercase;
   background: var(--amarelo); color: #1f2326; padding: 0 6px; border-radius: 4px; letter-spacing: .04em;
 }
 .marco-tempo { font-weight: 700; font-size: .95rem; margin-top: 2px; }

@@ -39,9 +39,14 @@ public class DashboardService {
     private static final DateTimeFormatter DIA_MES = DateTimeFormatter.ofPattern("dd/MM");
     private static final int MAXIMO_DIAS_PERIODO = 366;
 
+    /**
+     * Indicadores do recorte. {@code custoPorKm} = custo total ÷ km percorridos (real ou, sem hodômetro, estimado);
+     * {@code kmLitroMedio} = km percorridos ÷ litros estimados (km ÷ km/l de cada roteiro). Nulos quando não há km.
+     */
     public record Indicadores(long roteiros, long totalParadoMin, long mediaPorRoteiroMin, BigDecimal percentualJornada,
                               BigDecimal custoTotal, BigDecimal distanciaEstimadaKm, BigDecimal distanciaRealKm,
-                              BigDecimal diferencaKm, BigDecimal jornadaHoras) {
+                              BigDecimal diferencaKm, BigDecimal jornadaHoras, BigDecimal kmPercorrido,
+                              BigDecimal custoPorKm, BigDecimal litros, BigDecimal kmLitroMedio) {
     }
 
     /** Uma barra do gráfico (um dia ou um mês). */
@@ -198,51 +203,64 @@ public class DashboardService {
     }
 
     private Indicadores indicadoresPorData(List<Agregados.TotalPorData> linhas, BigDecimal jornada) {
-        long qtd = 0;
-        long seg = 0;
-        BigDecimal custo = BigDecimal.ZERO;
-        BigDecimal estimada = BigDecimal.ZERO;
-        BigDecimal real = BigDecimal.ZERO;
-        BigDecimal estimadaComReal = BigDecimal.ZERO;
+        Soma soma = new Soma();
         for (Agregados.TotalPorData l : linhas) {
-            qtd += nz(l.roteiros());
-            seg += nz(l.segundosParados());
-            custo = custo.add(nz(l.custo()));
-            estimada = estimada.add(nz(l.distanciaEstimada()));
-            real = real.add(nz(l.distanciaReal()));
-            estimadaComReal = estimadaComReal.add(nz(l.distanciaEstimadaComReal()));
+            soma.somar(l.roteiros(), l.segundosParados(), l.custo(), l.distanciaEstimada(), l.distanciaReal(),
+                    l.distanciaEstimadaComReal(), l.kmPercorrido(), l.kmComConsumo(), l.litros());
         }
-        return indicadores(qtd, seg, custo, estimada, real, estimadaComReal, jornada);
+        return soma.indicadores(jornada);
     }
 
     private Indicadores indicadoresPorMes(List<Agregados.TotalPorMes> linhas, BigDecimal jornada) {
-        long qtd = 0;
-        long seg = 0;
+        Soma soma = new Soma();
+        for (Agregados.TotalPorMes l : linhas) {
+            soma.somar(l.roteiros(), l.segundosParados(), l.custo(), l.distanciaEstimada(), l.distanciaReal(),
+                    l.distanciaEstimadaComReal(), l.kmPercorrido(), l.kmComConsumo(), l.litros());
+        }
+        return soma.indicadores(jornada);
+    }
+
+    /** Acumula as linhas agregadas (por data ou por mês) de um recorte. */
+    private static final class Soma {
+        long qtd;
+        long seg;
         BigDecimal custo = BigDecimal.ZERO;
         BigDecimal estimada = BigDecimal.ZERO;
         BigDecimal real = BigDecimal.ZERO;
         BigDecimal estimadaComReal = BigDecimal.ZERO;
-        for (Agregados.TotalPorMes l : linhas) {
-            qtd += nz(l.roteiros());
-            seg += nz(l.segundosParados());
-            custo = custo.add(nz(l.custo()));
-            estimada = estimada.add(nz(l.distanciaEstimada()));
-            real = real.add(nz(l.distanciaReal()));
-            estimadaComReal = estimadaComReal.add(nz(l.distanciaEstimadaComReal()));
-        }
-        return indicadores(qtd, seg, custo, estimada, real, estimadaComReal, jornada);
-    }
+        BigDecimal km = BigDecimal.ZERO;
+        BigDecimal kmComConsumo = BigDecimal.ZERO;
+        BigDecimal litros = BigDecimal.ZERO;
 
-    /** A diferença compara só roteiros que têm as duas distâncias (real − estimada). */
-    private static Indicadores indicadores(long qtd, long seg, BigDecimal custo, BigDecimal estimada, BigDecimal real,
-                                           BigDecimal estimadaComReal, BigDecimal jornada) {
-        return new Indicadores(qtd, minutos(seg), media(seg, qtd),
-                CalculadoraTempoParado.percentualDaJornada(seg, qtd, jornada),
-                custo.setScale(2, RoundingMode.HALF_UP),
-                estimada.setScale(1, RoundingMode.HALF_UP),
-                real.setScale(1, RoundingMode.HALF_UP),
-                real.subtract(estimadaComReal).setScale(1, RoundingMode.HALF_UP),
-                jornada);
+        void somar(Long roteiros, Long segundos, BigDecimal custo, BigDecimal estimada, BigDecimal real,
+                   BigDecimal estimadaComReal, BigDecimal km, BigDecimal kmComConsumo, BigDecimal litros) {
+            this.qtd += nz(roteiros);
+            this.seg += nz(segundos);
+            this.custo = this.custo.add(nz(custo));
+            this.estimada = this.estimada.add(nz(estimada));
+            this.real = this.real.add(nz(real));
+            this.estimadaComReal = this.estimadaComReal.add(nz(estimadaComReal));
+            this.km = this.km.add(nz(km));
+            this.kmComConsumo = this.kmComConsumo.add(nz(kmComConsumo));
+            this.litros = this.litros.add(nz(litros));
+        }
+
+        /** A diferença compara só roteiros que têm as duas distâncias (real − estimada). */
+        Indicadores indicadores(BigDecimal jornada) {
+            BigDecimal custoPorKm = km.signum() > 0 ? custo.divide(km, 2, RoundingMode.HALF_UP) : null;
+            BigDecimal kmLitroMedio = litros.signum() > 0 ? kmComConsumo.divide(litros, 1, RoundingMode.HALF_UP) : null;
+            return new Indicadores(qtd, minutos(seg), media(seg, qtd),
+                    CalculadoraTempoParado.percentualDaJornada(seg, qtd, jornada),
+                    custo.setScale(2, RoundingMode.HALF_UP),
+                    estimada.setScale(1, RoundingMode.HALF_UP),
+                    real.setScale(1, RoundingMode.HALF_UP),
+                    real.subtract(estimadaComReal).setScale(1, RoundingMode.HALF_UP),
+                    jornada,
+                    km.setScale(1, RoundingMode.HALF_UP),
+                    custoPorKm,
+                    litros.setScale(1, RoundingMode.HALF_UP),
+                    kmLitroMedio);
+        }
     }
 
     static String nomeDoMes(YearMonth mes) {

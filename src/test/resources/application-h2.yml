@@ -1,0 +1,14 @@
+# Perfil só para demonstração/verificação rápida SEM banco: H2 em memória (os dados somem ao parar).
+# Uso: .\mvnw.cmd spring-boot:test-run "-Dspring-boot.run.mainClass=br.pucminas.pontomorto.PontoMortoComH2"
+# O banco oficial do projeto é o PostgreSQL (Supabase ou docker-compose).
+spring:
+  datasource:
+    url: jdbc:h2:mem:pontomorto;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+pontomorto:
+  dados-exemplo:
+    habilitado: true
+    meses-historico: 12
