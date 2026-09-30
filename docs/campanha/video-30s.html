@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ponto Morto · vídeo de 30 s</title>
+<!-- Vídeo de divulgação (roteiro em roteiro-video-30s.md). Abra no navegador para assistir;
+     o arquivo video-30s.mp4 é gerado a partir desta página, quadro a quadro (função desenhar(t)). -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap">
+<style>
+  :root {
+    --asfalto: #2b2f33;
+    --asfalto-escuro: #1f2326;
+    --asfalto-3: #15181b;
+    --amarelo: #f5c200;
+    --verde: #17803f;
+    --verde-claro: #34c46c;
+    --branco: #f1f2f0;
+    --cinza: #aab1b7;
+    --cinza-2: #676f76;
+    --papel: #f2f3f1;
+    --texto: #1f2326;
+    --grafico: #b7860b;
+  }
+  html, body { margin: 0; height: 100%; background: #0b0c0d; }
+  body { display: flex; align-items: center; justify-content: center; overflow: hidden;
+         font-family: "Barlow", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  #palco { position: relative; width: 1080px; height: 1920px; flex: none; overflow: hidden;
+           background: var(--asfalto); color: var(--branco); transform-origin: center center; }
+  .cena { position: absolute; inset: 0; opacity: 0; }
+  .titulo { position: absolute; left: 84px; right: 84px; top: 210px; margin: 0;
+            font-family: "Barlow Condensed", "Barlow", sans-serif; font-weight: 700;
+            font-size: 116px; line-height: 1.0; letter-spacing: -.5px; }
+  .titulo span { display: inline-block; }
+  .amarelo { color: var(--amarelo); }
+  .verde { color: var(--verde-claro); }
+  #legenda { position: absolute; left: 80px; right: 80px; bottom: 150px; text-align: center;
+             font-size: 44px; font-weight: 500; line-height: 1.3; padding: 24px 34px;
+             background: rgba(15, 17, 19, .78); border-radius: 20px; }
+  #faixa { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; }
+  #faixa i { position: absolute; width: 30px; height: 150px; border-radius: 6px; background: var(--amarelo); }
+  #faixa i:nth-child(odd) { left: 34px; }
+  #faixa i:nth-child(even) { right: 34px; }
+  #alerta { position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 0 22px var(--amarelo); opacity: 0; }
+  .marca { position: absolute; left: 84px; top: 96px; display: flex; align-items: center; gap: 18px;
+           font-family: "Barlow Condensed", sans-serif; font-weight: 700; font-size: 44px; letter-spacing: 2px; }
+  .marca svg { width: 64px; height: 64px; }
+
+  /* Cena 1 */
+  #relogio { position: absolute; left: 290px; top: 700px; width: 500px; height: 500px; }
+  .pisca { position: absolute; top: 880px; width: 120px; height: 150px; border-radius: 28px;
+           background: #6b4f00; }
+  #parado-ha { position: absolute; left: 0; right: 0; top: 1250px; text-align: center; font-size: 54px;
+               font-weight: 600; color: var(--amarelo); font-variant-numeric: tabular-nums; }
+
+  /* Cena 2 */
+  #linha-dia { position: absolute; left: 0; top: 820px; width: 1080px; height: 600px; }
+
+  /* Cena 3 */
+  #celular { position: absolute; left: 250px; top: 590px; width: 580px; height: 960px; box-sizing: border-box;
+             background: var(--asfalto-3); border: 16px solid #0b0c0d; border-radius: 76px;
+             box-shadow: 0 40px 90px rgba(0,0,0,.45); overflow: hidden; }
+  #celular .topo { position: absolute; left: 44px; right: 44px; top: 70px; font-size: 30px; color: var(--cinza); }
+  #celular .endereco { position: absolute; left: 44px; right: 44px; top: 118px; font-size: 62px; font-weight: 700; line-height: 1.05; }
+  #celular .bairro { position: absolute; left: 44px; right: 44px; top: 196px; font-size: 32px; color: var(--cinza); }
+  #celular .rotulo-tempo { position: absolute; left: 0; right: 0; top: 320px; text-align: center; font-size: 30px; color: var(--cinza); }
+  #cronometro { position: absolute; left: 0; right: 0; top: 356px; text-align: center; font-size: 132px; font-weight: 700;
+                font-variant-numeric: tabular-nums; letter-spacing: 2px; }
+  #horarios { position: absolute; left: 44px; right: 44px; top: 530px; display: flex; justify-content: space-between;
+              font-size: 30px; color: var(--cinza); font-variant-numeric: tabular-nums; }
+  #horarios b { color: var(--branco); font-weight: 600; }
+  #botao { position: absolute; left: 44px; right: 44px; top: 640px; height: 200px; border-radius: 30px;
+           display: flex; align-items: center; justify-content: center; overflow: hidden;
+           font-family: "Barlow Condensed", sans-serif; font-weight: 700; font-size: 96px; letter-spacing: 4px; }
+  #onda { position: absolute; left: 50%; top: 50%; width: 200px; height: 200px; margin: -100px 0 0 -100px;
+          border-radius: 50%; background: rgba(255,255,255,.55); opacity: 0; }
+
+  /* Cena 4 */
+  #estrada { position: absolute; left: 0; top: 640px; width: 1080px; height: 700px; }
+
+  /* Cena 5 */
+  #painel { position: absolute; left: 64px; right: 64px; top: 450px; box-sizing: border-box;
+            background: var(--papel); color: var(--texto); border-radius: 40px; padding: 40px 44px;
+            box-shadow: 0 40px 90px rgba(0,0,0,.4); }
+  #abas { display: flex; gap: 10px; background: #e3e5e1; padding: 8px; border-radius: 18px; }
+  #abas div { flex: 1; text-align: center; padding: 14px 0; border-radius: 12px; font-size: 34px; font-weight: 600; color: #474e54; }
+  #abas div.ativa { background: #fff; color: var(--texto); box-shadow: 0 2px 8px rgba(0,0,0,.12); }
+  #kpis { display: grid; grid-template-columns: 1.15fr 1fr 1fr; gap: 14px; margin-top: 26px; }
+  #kpis div { background: #fff; border-radius: 16px; padding: 16px 20px; }
+  #kpis small { display: block; font-size: 24px; color: #676f76; font-weight: 500; }
+  #kpis b { display: block; font-size: 46px; font-weight: 700; margin-top: 2px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  #kpis div:first-child { border-left: 8px solid var(--amarelo); }
+  #grafico { position: relative; height: 280px; margin-top: 76px; border-bottom: 3px solid #b9beb8;
+             display: flex; align-items: flex-end; gap: 12px; }
+  #grafico .barra { position: relative; flex: 1; background: var(--grafico); border-radius: 8px 8px 0 0; }
+  #grafico .barra em { position: absolute; left: 50%; bottom: calc(100% + 6px); transform: translateX(-50%);
+                       font-style: normal; font-size: 28px; font-weight: 700; white-space: nowrap; color: var(--texto); }
+  #grafico .barra span { position: absolute; left: 50%; top: calc(100% + 8px); transform: translateX(-50%);
+                         font-size: 24px; color: #676f76; white-space: nowrap; }
+  #ranking { margin-top: 64px; }
+  #ranking h3 { margin: 0 0 12px; font-size: 30px; font-weight: 600; color: #474e54; }
+  #ranking .item { display: flex; align-items: center; gap: 18px; padding: 14px 18px; border-radius: 14px;
+                   font-size: 34px; background: #fff; margin-bottom: 10px; }
+  #ranking .item b { width: 44px; font-size: 34px; }
+  #ranking .item span { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #ranking .item strong { font-variant-numeric: tabular-nums; }
+  #ranking .item.primeiro { background: #fff3c4; box-shadow: inset 0 0 0 3px var(--amarelo); }
+
+  /* Cena 6 */
+  .balao { position: absolute; max-width: 720px; padding: 30px 36px; border-radius: 36px; font-size: 44px; line-height: 1.25; }
+  #balao-1 { right: 84px; top: 700px; background: var(--amarelo); color: var(--texto); border-bottom-right-radius: 8px; }
+  #balao-2 { left: 84px; top: 1130px; background: var(--branco); color: var(--texto); border-bottom-left-radius: 8px; }
+  .balao small { display: block; font-size: 28px; font-weight: 600; margin-bottom: 8px; opacity: .7; }
+  .mini { display: flex; align-items: center; gap: 16px; margin-top: 20px; padding: 16px 20px; border-radius: 18px;
+          background: rgba(31,35,38,.1); font-size: 32px; font-weight: 600; }
+  .mini i { display: block; width: 26px; height: 26px; border-radius: 50%; background: var(--asfalto-escuro); flex: none; }
+
+  /* Cena 7 */
+  #logo-final { position: absolute; left: 340px; top: 470px; width: 400px; height: 400px; }
+  #nome-final { position: absolute; left: 0; right: 0; top: 920px; text-align: center; font-family: "Barlow Condensed", sans-serif;
+                font-weight: 700; font-size: 170px; letter-spacing: 6px; color: var(--amarelo); line-height: 1; }
+  #slogan-final { position: absolute; left: 0; right: 0; top: 1110px; text-align: center; font-size: 56px; font-weight: 600; }
+  #teste-final { position: absolute; left: 190px; right: 190px; top: 1260px; text-align: center; padding: 26px 0;
+                 border-radius: 60px; background: var(--verde); font-size: 50px; font-weight: 700; }
+
+  /* Controles (só ao assistir no navegador) */
+  #controles { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); display: flex; gap: 12px; align-items: center;
+               font: 500 14px "Barlow", system-ui, sans-serif; color: #ddd; background: rgba(0,0,0,.6); padding: 8px 14px; border-radius: 999px; }
+  #controles button { font: inherit; color: #111; background: #f5c200; border: 0; border-radius: 999px; padding: 6px 14px; cursor: pointer; }
+  #controles input { width: 260px; accent-color: #f5c200; }
+  .captura #controles { display: none; }
+  .captura body, body.captura { background: var(--asfalto); }
+</style>
+</head>
+<body>
+<div id="palco" aria-label="Vídeo de divulgação do Ponto Morto, 30 segundos">
+  <div id="faixa"></div>
+
+  <!-- 1 · 0–3 s -->
+  <section class="cena" id="c1">
+    <h1 class="titulo"><span>Você</span> <span>sabe</span> <span>onde</span> <span>sua</span> <span>entrega</span> <span class="amarelo">fica</span> <span class="amarelo">parada?</span></h1>
+    <div class="pisca" id="pisca-e" style="left:70px"></div>
+    <div class="pisca" id="pisca-d" style="right:70px"></div>
+    <svg id="relogio" viewBox="0 0 500 500">
+      <circle cx="250" cy="250" r="232" fill="#1f2326" stroke="#f1f2f0" stroke-width="14"/>
+      <g stroke="#aab1b7" stroke-width="10" stroke-linecap="round" id="marcas"></g>
+      <line id="ponteiro-h" x1="250" y1="250" x2="250" y2="140" stroke="#f1f2f0" stroke-width="18" stroke-linecap="round"/>
+      <line id="ponteiro-m" x1="250" y1="250" x2="250" y2="70" stroke="#f5c200" stroke-width="12" stroke-linecap="round"/>
+      <circle cx="250" cy="250" r="18" fill="#f5c200"/>
+    </svg>
+    <div id="parado-ha">parado há 3 min</div>
+  </section>
+
+  <!-- 2 · 3–7 s -->
+  <section class="cena" id="c2">
+    <h1 class="titulo"><span id="c2a">Saiu 8h.</span><br><span id="c2b">Voltou 17h.</span><br><span id="c2c" class="amarelo">E no meio?</span></h1>
+    <svg id="linha-dia" viewBox="0 0 1080 600">
+      <line x1="140" y1="260" x2="940" y2="260" stroke="#3b4046" stroke-width="16" stroke-linecap="round"/>
+      <line id="tracejado" x1="140" y1="260" x2="940" y2="260" stroke="#aab1b7" stroke-width="10" stroke-dasharray="26 26" stroke-linecap="round"/>
+      <g id="saiu"><circle cx="140" cy="260" r="40" fill="#34c46c"/>
+        <text x="140" y="380" text-anchor="middle" font-size="54" font-weight="700" fill="#f1f2f0" font-family="Barlow">08:00</text>
+        <text x="140" y="430" text-anchor="middle" font-size="34" fill="#aab1b7" font-family="Barlow">saiu</text></g>
+      <g id="voltou"><circle cx="940" cy="260" r="40" fill="#34c46c"/>
+        <text x="940" y="380" text-anchor="middle" font-size="54" font-weight="700" fill="#f1f2f0" font-family="Barlow">17:00</text>
+        <text x="940" y="430" text-anchor="middle" font-size="34" fill="#aab1b7" font-family="Barlow">voltou</text></g>
+      <g id="interrogacoes" font-family="Barlow Condensed" font-weight="700" text-anchor="middle">
+        <text x="340" y="200" font-size="80" fill="#676f76">?</text>
+        <text x="540" y="190" font-size="170" fill="#f5c200" id="interrogacao-grande">?</text>
+        <text x="740" y="200" font-size="80" fill="#676f76">?</text>
+      </g>
+    </svg>
+  </section>
+
+  <!-- 3 · 7–12 s -->
+  <section class="cena" id="c3">
+    <h1 class="titulo"><span id="c3a">Cheguei.</span> <span id="c3b" class="verde">Saí.</span> <span id="c3c">Pronto.</span></h1>
+    <div id="celular">
+      <div class="topo">Hoje · ponto 2 de 4</div>
+      <div class="endereco">Rua Peru, 55</div>
+      <div class="bairro">Sion · Belo Horizonte</div>
+      <div class="rotulo-tempo" id="rotulo-tempo">tempo parado</div>
+      <div id="cronometro">00:00</div>
+      <div id="horarios"><span id="h-chegada">chegada <b>—</b></span><span id="h-saida">saída <b>—</b></span></div>
+      <div id="botao"><span id="botao-texto">CHEGUEI</span><div id="onda"></div></div>
+    </div>
+  </section>
+
+  <!-- 4 · 12–18 s -->
+  <section class="cena" id="c4">
+    <h1 class="titulo"><span id="c4a">Todo minuto parado</span> <span id="c4b" class="amarelo">tem endereço.</span></h1>
+    <svg id="estrada" viewBox="0 0 1080 700">
+      <rect x="0" y="200" width="1080" height="170" fill="#1f2326"/>
+      <line x1="0" y1="206" x2="1080" y2="206" stroke="#f1f2f0" stroke-width="6" opacity=".7"/>
+      <line x1="0" y1="364" x2="1080" y2="364" stroke="#f1f2f0" stroke-width="6" opacity=".7"/>
+      <line id="faixa-h" x1="-120" y1="285" x2="1200" y2="285" stroke="#f5c200" stroke-width="12" stroke-dasharray="60 50"/>
+      <g id="pontos" font-family="Barlow" text-anchor="middle"></g>
+      <text id="total-estrada" x="540" y="660" text-anchor="middle" font-family="Barlow" font-size="40" fill="#f1f2f0">
+        Total: <tspan font-weight="700" fill="#f5c200">75 min</tspan> · a partida não conta</text>
+    </svg>
+  </section>
+
+  <!-- 5 · 18–24 s -->
+  <section class="cena" id="c5">
+    <h1 class="titulo"><span id="c5a">Dia,</span> <span id="c5b">mês</span> <span id="c5c">e período.</span></h1>
+    <div id="painel">
+      <div id="abas"><div data-aba="dia">Dia</div><div data-aba="mes">Mês</div><div data-aba="periodo">Período</div></div>
+      <div id="kpis">
+        <div><small>Tempo parado</small><b id="k-tempo">161 min</b></div>
+        <div><small>% da jornada</small><b id="k-jornada">11,2%</b></div>
+        <div><small>Custo por km</small><b id="k-custo">R$ 0,80</b></div>
+      </div>
+      <div id="grafico"></div>
+      <div id="ranking">
+        <h3>Endereços com mais tempo parado</h3>
+        <div class="item primeiro" id="r1"><b>1º</b><span>Av. João César de Oliveira</span><strong>50 min</strong></div>
+        <div class="item" id="r2"><b>2º</b><span>Rua Peru, 55</span><strong>15 min</strong></div>
+        <div class="item" id="r3"><b>3º</b><span>Rua X, 5</span><strong>10 min</strong></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 · 24–27 s -->
+  <section class="cena" id="c6">
+    <h1 class="titulo"><span id="c6a">Prazo renegociado</span> <span id="c6b" class="amarelo">com números.</span></h1>
+    <div class="balao" id="balao-1"><small>Gerente</small>Na Av. João César a espera foi de 50 min. Vamos ajustar a janela de entrega?
+      <div class="mini"><i></i>Av. João César · 50 min parado</div></div>
+    <div class="balao" id="balao-2"><small>Cliente</small>Justo. Combinado!</div>
+  </section>
+
+  <!-- 7 · 27–30 s -->
+  <section class="cena" id="c7">
+    <svg id="logo-final" viewBox="0 0 64 64" aria-hidden="true">
+      <rect x="11" y="11" width="42" height="42" rx="6" transform="rotate(45 32 32)" fill="#F5C200" stroke="#1F2326" stroke-width="3"/>
+      <g fill="none" stroke="#1F2326" stroke-width="3.5" stroke-linecap="round"><path d="M22 23v18M32 23v18M42 23v18M22 32h20"/></g>
+      <circle cx="32" cy="32" r="5.5" fill="#1F2326" stroke="#F5C200" stroke-width="2"/>
+    </svg>
+    <div id="nome-final">PONTO MORTO</div>
+    <div id="slogan-final">Todo minuto parado tem endereço.</div>
+    <div id="teste-final">Teste grátis por 30 dias</div>
+  </section>
+
+  <div class="marca" id="marca">
+    <svg viewBox="0 0 64 64" aria-hidden="true">
+      <rect x="11" y="11" width="42" height="42" rx="6" transform="rotate(45 32 32)" fill="#F5C200" stroke="#1F2326" stroke-width="3"/>
+      <g fill="none" stroke="#1F2326" stroke-width="3.5" stroke-linecap="round"><path d="M22 23v18M32 23v18M42 23v18M22 32h20"/></g>
+      <circle cx="32" cy="32" r="5.5" fill="#1F2326" stroke="#F5C200" stroke-width="2"/>
+    </svg>PONTO MORTO</div>
+  <div id="legenda"></div>
+  <div id="alerta"></div>
+</div>
+
+<div id="controles">
+  <button type="button" id="tocar">Pausar</button>
+  <input type="range" id="tempo" min="0" max="30" step="0.01" value="0" aria-label="Posição do vídeo">
+  <span id="tempo-texto">0,0 s</span>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var DURACAO = 30;
+  var CAPTURA = /[?&]captura/.test(location.search);
+  if (CAPTURA) document.body.classList.add('captura');
+
+  // Cenas: [início, fim] em segundos e a locução (legenda sempre ligada)
+  var CENAS = [
+    ['c1', 0, 3, 'Você sabe onde sua equipe fica parada?'],
+    ['c2', 3, 7, 'Você sabe a hora que ela sai e a hora que volta. Mas e no meio?'],
+    ['c3', 7, 12, 'Com o Ponto Morto, o motorista toca dois botões em cada parada.'],
+    ['c4', 12, 18, 'E cada minuto parado fica ligado a um endereço.'],
+    ['c5', 18, 24, 'No painel, você vê por dia, mês e período onde estão os gargalos e quanto custam.'],
+    ['c6', 24, 27, 'Aí fica fácil renegociar o prazo com o cliente.'],
+    ['c7', 27, 30, 'Ponto Morto. Teste grátis por 30 dias.']
+  ];
+  var CORTES = [3, 7, 12, 18, 24, 27];
+
+  // As animações foram escritas numa grade de cenas (ROTEIRO); o vídeo final usa os tempos da narração (VIDEO).
+  // desenhar(t) converte o tempo do vídeo para a grade de cenas, trecho a trecho.
+  var ROTEIRO = [0, 3, 7, 12, 18, 24, 27, 30];
+  var VIDEO = [0, 3, 7.5, 12, 16.6, 22.3, 25.8, 30];
+  function converter(t, de, para) {
+    for (var i = 0; i < de.length - 1; i++) {
+      if (t <= de[i + 1] || i === de.length - 2) {
+        return para[i] + (t - de[i]) * (para[i + 1] - para[i]) / (de[i + 1] - de[i]);
+      }
+    }
+    return t;
+  }
+  window.paraVideo = function (t) { return converter(t, ROTEIRO, VIDEO); };
+  window.CENAS_VIDEO = VIDEO;
+
+  // Números dos dados de exemplo do sistema (roteiros A, B e C e histórico de 12 meses)
+  var RECORTES = {
+    dia: { tempo: '161 min', jornada: '11,2%', custo: 'R$ 0,80', unidade: ' min',
+           barras: [['João', 75], ['Maria', 41], ['Pedro', 45]] },
+    mes: { tempo: '62 h 08', jornada: '12,3%', custo: 'R$ 0,83', unidade: ' min',
+           barras: [['21', 264], ['22', 136], ['23', 268], ['24', 166], ['25', 154], ['26', 167], ['27', 161]] },
+    periodo: { tempo: '704 h', jornada: '11,6%', custo: 'R$ 0,84', unidade: ' h',
+               barras: [['out', 68], ['nov', 61], ['dez', 70], ['jan', 56], ['fev', 48], ['mar', 52], ['abr', 59],
+                        ['mai', 59], ['jun', 54], ['jul', 59], ['ago', 51], ['set', 62]] }
+  };
+  var TROCA_ABA = [['dia', 18], ['mes', 19.9], ['periodo', 21.6]];
+
+  var $ = function (id) { return document.getElementById(id); };
+  var clamp = function (x, a, b) { return Math.min(b === undefined ? 1 : b, Math.max(a || 0, x)); };
+  var lin = function (t, a, b) { return clamp((t - a) / (b - a)); };
+  var saida = function (x) { return 1 - Math.pow(1 - x, 3); };
+  var mola = function (x) { var c1 = 1.70158, c3 = c1 + 1; return x <= 0 ? 0 : 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); };
+
+  function janela(t, ini, fim) {
+    var entra = ini <= 0 ? 1 : lin(t, ini, ini + 0.3);
+    var sai = fim >= DURACAO ? 1 : 1 - lin(t, fim - 0.25, fim);
+    return Math.min(entra, sai);
+  }
+  function surgir(el, t, t0, dur, dy) {
+    var p = saida(lin(t, t0, t0 + (dur || 0.45)));
+    el.style.opacity = p;
+    el.style.transform = 'translateY(' + ((1 - p) * (dy === undefined ? 40 : dy)).toFixed(1) + 'px)';
+  }
+  function mm(seg) {
+    var m = Math.floor(seg / 60), s = Math.floor(seg % 60);
+    return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+  }
+
+  // ---------- Montagem (uma vez) ----------
+  (function montar() {
+    var faixa = $('faixa');
+    for (var i = 0; i < 20; i++) faixa.appendChild(document.createElement('i'));
+    var marcas = $('marcas'), svg = 'http://www.w3.org/2000/svg';
+    for (var k = 0; k < 12; k++) {
+      var a = k * Math.PI / 6, l = document.createElementNS(svg, 'line');
+      l.setAttribute('x1', 250 + Math.sin(a) * 190); l.setAttribute('y1', 250 - Math.cos(a) * 190);
+      l.setAttribute('x2', 250 + Math.sin(a) * 210); l.setAttribute('y2', 250 - Math.cos(a) * 210);
+      marcas.appendChild(l);
+    }
+    // Estrada: partida + 3 paradas do roteiro A. Diâmetro proporcional à área (como na tela do sistema).
+    var pontos = [
+      { x: 120, min: 0, rotulo: 'Seg. Família', sub: 'partida', t0: 12.6 },
+      { x: 360, min: 15, rotulo: 'Rua Peru, 55', sub: '15 min', t0: 13.2 },
+      { x: 590, min: 10, rotulo: 'Rua X, 5', sub: '10 min', t0: 14.1 },
+      { x: 860, min: 50, rotulo: 'Av. João César', sub: '50 min', t0: 15.0 }
+    ];
+    var g = $('pontos');
+    pontos.forEach(function (p, i) {
+      var r = p.min ? 115 * Math.sqrt(p.min / 50) : 22;
+      var grupo = document.createElementNS(svg, 'g');
+      grupo.setAttribute('id', 'ponto-' + i);
+      grupo.innerHTML =
+        '<g class="bola" transform="translate(' + p.x + ' 285)">' +
+          '<circle r="' + (r + 8) + '" fill="#2b2f33"/>' +
+          '<circle r="' + r + '" fill="' + (p.min ? '#f5c200' : '#aab1b7') + '" stroke="#1f2326" stroke-width="6"/>' +
+          (p.min ? '<text y="' + (r > 70 ? 18 : 14) + '" font-size="' + (r > 70 ? 64 : 44) + '" font-weight="700" fill="#1f2326">' + p.min + '</text>' : '') +
+        '</g>' +
+        '<g class="rotulo"><text x="' + p.x + '" y="470" font-size="36" font-weight="600" fill="#f1f2f0">' + p.rotulo + '</text>' +
+        '<text x="' + p.x + '" y="518" font-size="32" fill="' + (p.min ? '#f5c200' : '#aab1b7') + '">' + p.sub + '</text></g>';
+      g.appendChild(grupo);
+      p.el = grupo;
+    });
+    montar.pontos = pontos;
+    window.__pontos = pontos;
+  })();
+
+  var barrasDesenhadas = null;
+  function montarBarras(aba) {
+    if (barrasDesenhadas === aba) return;
+    barrasDesenhadas = aba;
+    var dados = RECORTES[aba], max = 0, g = $('grafico');
+    dados.barras.forEach(function (b) { max = Math.max(max, b[1]); });
+    g.innerHTML = '';
+    dados.barras.forEach(function (b) {
+      var d = document.createElement('div');
+      d.className = 'barra';
+      d.dataset.altura = (b[1] / max * 100).toFixed(1);
+      d.innerHTML = (b[1] === max ? '<em>' + b[1] + dados.unidade + '</em>' : '') + '<span>' + b[0] + '</span>';
+      g.appendChild(d);
+    });
+    $('k-tempo').textContent = dados.tempo;
+    $('k-jornada').textContent = dados.jornada;
+    $('k-custo').textContent = dados.custo;
+    document.querySelectorAll('#abas div').forEach(function (a) { a.classList.toggle('ativa', a.dataset.aba === aba); });
+  }
+
+  // ---------- Desenho de um quadro ----------
+  function desenhar(t) {
+    t = converter(clamp(t, 0, DURACAO), VIDEO, ROTEIRO);
+    var legenda = '', opLegenda = 0;
+    CENAS.forEach(function (c) {
+      var op = janela(t, c[1], c[2]);
+      if (t < c[1] - 0.001 || t > c[2] + 0.001) op = 0;
+      $(c[0]).style.opacity = op;
+      $(c[0]).style.visibility = op > 0 ? 'visible' : 'hidden';
+      if (op > opLegenda) { opLegenda = op; legenda = c[3]; }
+    });
+    $('legenda').textContent = legenda;
+    $('legenda').style.opacity = opLegenda;
+
+    // Faixa central da estrada: parada no começo, andando no final
+    $('faixa').style.opacity = t >= 27 ? 0.6 * lin(t, 27, 27.4) : 0;
+    var desloc = t >= 27 ? (t - 27) * 900 : 0;
+    Array.prototype.forEach.call($('faixa').children, function (d, i) {
+      d.style.top = (((Math.floor(i / 2) * 260 + desloc) % 2600) - 300) + 'px';
+    });
+    $('marca').style.opacity = t < 27 ? 0.9 : 1 - lin(t, 27, 27.3);
+
+    // Pisca-alerta nos cortes de cena
+    var alerta = 0;
+    CORTES.forEach(function (c) { alerta = Math.max(alerta, 1 - Math.abs(t - c) / 0.18); });
+    $('alerta').style.opacity = clamp(alerta) * 0.85;
+
+    // Cena 1: relógio correndo, pisca-alerta ligado
+    if (t < 3.1) {
+      document.querySelectorAll('#c1 .titulo span').forEach(function (s, i) { surgir(s, t, 0.1 + i * 0.16, 0.4); });
+      var aceso = (t % 0.6) < 0.3;
+      ['pisca-e', 'pisca-d'].forEach(function (id) {
+        $(id).style.background = aceso ? '#f5a400' : '#5a4300';
+        $(id).style.boxShadow = aceso ? '0 0 70px 20px rgba(245,164,0,.55)' : 'none';
+      });
+      var minutos = 3 + t * 5;
+      $('ponteiro-m').setAttribute('transform', 'rotate(' + (minutos * 6) + ' 250 250)');
+      $('ponteiro-h').setAttribute('transform', 'rotate(' + (255 + minutos * 0.5) + ' 250 250)');
+      $('parado-ha').textContent = 'parado há ' + Math.floor(minutos) + ' min';
+      $('parado-ha').style.opacity = lin(t, 0.8, 1.2);
+    }
+
+    // Cena 2: saiu 8h, voltou 17h, e no meio?
+    if (t >= 2.9 && t < 7.1) {
+      surgir($('c2a'), t, 3.25); surgir($('c2b'), t, 4.15); surgir($('c2c'), t, 5.1);
+      $('saiu').style.opacity = lin(t, 3.3, 3.6);
+      $('voltou').style.opacity = lin(t, 4.2, 4.5);
+      var trac = lin(t, 3.5, 4.4);
+      $('tracejado').setAttribute('x2', 140 + 800 * saida(trac));
+      $('interrogacoes').style.opacity = lin(t, 5.1, 5.4);
+      var pulso = 1 + 0.08 * Math.sin((t - 5.1) * 7) * lin(t, 5.1, 5.4);
+      $('interrogacao-grande').setAttribute('transform', 'translate(540 130) scale(' + pulso.toFixed(3) + ') translate(-540 -130)');
+    }
+
+    // Cena 3: Cheguei → cronômetro → Saí
+    if (t >= 6.9 && t < 12.1) {
+      surgir($('c3a'), t, 7.3); surgir($('c3b'), t, 10.1); surgir($('c3c'), t, 10.8);
+      var aperto = function (tp) { return 1 - 0.06 * Math.max(0, 1 - Math.abs(t - tp) / 0.15); };
+      var onda = function (tp) {
+        var p = lin(t, tp, tp + 0.55);
+        $('onda').style.opacity = p > 0 && p < 1 ? (1 - p) * 0.8 : 0;
+        $('onda').style.transform = 'scale(' + (0.2 + p * 3.2) + ')';
+      };
+      var botao = $('botao');
+      if (t < 8.05) {
+        botao.style.background = '#f5c200'; botao.style.color = '#1f2326';
+        $('botao-texto').textContent = 'CHEGUEI';
+        botao.style.transform = 'scale(' + aperto(8.0) + ')';
+        onda(7.95);
+        $('cronometro').textContent = '00:00'; $('cronometro').style.color = '#676f76';
+        $('rotulo-tempo').textContent = 'tempo parado';
+        $('h-chegada').innerHTML = 'chegada <b>—</b>'; $('h-saida').innerHTML = 'saída <b>—</b>';
+      } else if (t < 10.05) {
+        botao.style.background = '#17803f'; botao.style.color = '#fff';
+        $('botao-texto').textContent = 'SAÍ';
+        botao.style.transform = 'scale(' + Math.min(aperto(8.0), aperto(10.0)) + ')';
+        onda(t < 9 ? 7.95 : 9.95);
+        $('cronometro').textContent = mm(lin(t, 8.15, 9.85) * 900);
+        $('cronometro').style.color = '#f1f2f0';
+        $('rotulo-tempo').textContent = 'tempo parado';
+        $('h-chegada').innerHTML = 'chegada <b>08:25</b>'; $('h-saida').innerHTML = 'saída <b>—</b>';
+      } else {
+        botao.style.background = '#3b4046'; botao.style.color = '#f1f2f0';
+        $('botao-texto').textContent = 'PRÓXIMO →';
+        botao.style.transform = 'scale(' + aperto(10.0) + ')';
+        onda(9.95);
+        $('cronometro').textContent = '15 min'; $('cronometro').style.color = '#34c46c';
+        $('rotulo-tempo').textContent = 'registrado ✓';
+        $('h-chegada').innerHTML = 'chegada <b>08:25</b>'; $('h-saida').innerHTML = 'saída <b>08:40</b>';
+      }
+      $('botao-texto').style.fontSize = t >= 10.05 ? '72px' : '96px';
+      var sobe = saida(lin(t, 7.0, 7.5));
+      $('celular').style.transform = 'translateY(' + ((1 - sobe) * 160).toFixed(1) + 'px)';
+    }
+
+    // Cena 4: a estrada do roteiro A, bolas proporcionais ao tempo parado
+    if (t >= 11.9 && t < 18.1) {
+      surgir($('c4a'), t, 12.3); surgir($('c4b'), t, 12.8);
+      $('faixa-h').setAttribute('transform', 'translate(' + (-((t - 12) * 90) % 110).toFixed(1) + ' 0)');
+      window.__pontos.forEach(function (p) {
+        var s = mola(lin(t, p.t0, p.t0 + (p.min >= 50 ? 0.9 : 0.6)));
+        p.el.querySelector('.bola').setAttribute('transform', 'translate(' + p.x + ' 285) scale(' + Math.max(0.001, s).toFixed(3) + ')');
+        p.el.querySelector('.rotulo').style.opacity = lin(t, p.t0 + 0.25, p.t0 + 0.6);
+      });
+      $('total-estrada').style.opacity = lin(t, 16.3, 16.7);
+    }
+
+    // Cena 5: o painel troca de recorte (dia, mês, período)
+    if (t >= 17.9 && t < 24.1) {
+      surgir($('c5a'), t, 18.3); surgir($('c5b'), t, 19.9); surgir($('c5c'), t, 21.6);
+      var aba = 'dia', inicioAba = 18;
+      TROCA_ABA.forEach(function (a) { if (t >= a[1]) { aba = a[0]; inicioAba = a[1]; } });
+      montarBarras(aba);
+      var barras = document.querySelectorAll('#grafico .barra');
+      barras.forEach(function (b, i) {
+        var p = saida(lin(t, inicioAba + 0.15 + i * 0.05, inicioAba + 0.75 + i * 0.05));
+        b.style.height = (b.dataset.altura * p) + '%';
+        var em = b.querySelector('em');
+        if (em) em.style.opacity = lin(t, inicioAba + 0.8, inicioAba + 1.0);
+      });
+      var sobePainel = saida(lin(t, 18.0, 18.5));
+      $('painel').style.transform = 'translateY(' + ((1 - sobePainel) * 140).toFixed(1) + 'px)';
+      ['r1', 'r2', 'r3'].forEach(function (id, i) { surgir($(id), t, 19.0 + i * 0.2, 0.4, 24); });
+      var destaque = 1 + 0.03 * Math.max(0, Math.sin((t - 22.6) * 6)) * (t > 22.6 && t < 23.6 ? 1 : 0);
+      $('r1').style.transform += ' scale(' + destaque.toFixed(3) + ')';
+    }
+
+    // Cena 6: conversa com o cliente
+    if (t >= 23.9 && t < 27.1) {
+      surgir($('c6a'), t, 24.3); surgir($('c6b'), t, 24.7);
+      surgir($('balao-1'), t, 24.5, 0.45, 60);
+      surgir($('balao-2'), t, 25.6, 0.45, 60);
+    }
+
+    // Cena 7: logo e chamada
+    if (t >= 26.9) {
+      var l = mola(lin(t, 27.1, 27.8));
+      $('logo-final').style.transform = 'scale(' + Math.max(0.001, l).toFixed(3) + ') rotate(' + ((1 - lin(t, 27.1, 27.8)) * -30).toFixed(1) + 'deg)';
+      surgir($('nome-final'), t, 27.5); surgir($('slogan-final'), t, 27.9); surgir($('teste-final'), t, 28.4);
+    }
+  }
+  window.desenhar = desenhar;
+  window.DURACAO = DURACAO;
+
+  // Escala o palco para caber na janela (a captura usa o tamanho real, 1080 × 1920)
+  function ajustar() {
+    if (CAPTURA) return;
+    var e = Math.min(window.innerWidth / 1080, (window.innerHeight - 60) / 1920);
+    $('palco').style.transform = 'scale(' + e + ')';
+  }
+  window.addEventListener('resize', ajustar);
+  ajustar();
+
+  if (CAPTURA) { desenhar(0); return; }
+
+  // Reprodução no navegador
+  var tocando = true, inicio = performance.now(), posicao = 0;
+  var reduzir = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function laco(agora) {
+    if (tocando) {
+      posicao = ((agora - inicio) / 1000) % DURACAO;
+      $('tempo').value = posicao;
+      $('tempo-texto').textContent = posicao.toFixed(1).replace('.', ',') + ' s';
+      desenhar(posicao);
+    }
+    requestAnimationFrame(laco);
+  }
+  $('tocar').addEventListener('click', function () {
+    tocando = !tocando;
+    if (tocando) inicio = performance.now() - posicao * 1000;
+    this.textContent = tocando ? 'Pausar' : 'Tocar';
+  });
+  $('tempo').addEventListener('input', function () {
+    posicao = Number(this.value);
+    inicio = performance.now() - posicao * 1000;
+    $('tempo-texto').textContent = posicao.toFixed(1).replace('.', ',') + ' s';
+    desenhar(posicao);
+  });
+  if (reduzir) { tocando = false; $('tocar').textContent = 'Tocar'; }
+  document.fonts.ready.then(function () { inicio = performance.now(); requestAnimationFrame(laco); desenhar(0); });
+})();
+</script>
+</body>
+</html>

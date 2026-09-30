@@ -76,6 +76,7 @@ Caminhos a partir da raiz do projeto.
 | Landing page (slogan, problema, 3 passos, números, teste grátis) | `R/templates/landing.html`, `…/web/PublicoController.java` |
 | 3 posts (texto + arte SVG) | `docs/campanha/posts.md`, `post-1-todo-minuto.svg`, `post-2-numeros.svg`, `post-3-cheguei-sai.svg` |
 | Roteiro de vídeo de 30 s | `docs/campanha/roteiro-video-30s.md` |
+| Vídeo de 30 s (animado, vertical) | `docs/campanha/video-30s.mp4`, feito a partir de `docs/campanha/video-30s.html` |
 | E-mail de lançamento | `docs/campanha/email-lancamento.md` |
 | Estrada horizontal com ponto proporcional ao tempo parado | `R/templates/fragmentos/estrada.html`, `…/web/EstradaView.java` |
 | Modo escuro | `R/static/css/ponto-morto.css`, `R/static/js/tema.js` |
